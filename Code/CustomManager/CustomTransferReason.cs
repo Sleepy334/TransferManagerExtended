@@ -136,9 +136,9 @@ namespace TransferManagerCore
             // -----------------------------
 
             // Prison Helicopter Mod
-            PoliceVanCriminalMove = 223,
-            HelicopterCriminalPickup = 224,
-            HelicopterCriminalMove = 225,
+            PoliceVanCrimeMove = 223, 
+            CrimePickup2 = 224, // Prison helicopter call out
+            CrimeMove2 = 225, // Prison helicopter move
 
             // Transfer Managere CE extensions
             Crime2 = 240, // Helicopter crime response to separate for path finding
