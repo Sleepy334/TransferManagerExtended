@@ -1,0 +1,40 @@
+using SleepyCommon;
+using System;
+using static TransferManager;
+using static TransferManagerCore.BuildingTypeHelper;
+
+namespace TransferManagerCore.Data
+{
+    public class StatusDataSnowDump : StatusDataBuilding
+    {
+        public StatusDataSnowDump(BuildingType eBuildingType, ushort BuildingId) : 
+            base(CustomTransferReason.Reason.Snow, eBuildingType, BuildingId)
+        {
+        }
+
+        protected override string CalculateValue(out string tooltip)
+        {
+            Building building = BuildingManager.instance.m_buildings.m_buffer[m_buildingId];
+            switch (m_eBuildingType)
+            {
+                case BuildingType.SnowDump:
+                    {
+                        SnowDumpAI? buildingAI = building.Info.m_buildingAI as SnowDumpAI;
+                        if (buildingAI is not null)
+                        {
+                            int iAmount = buildingAI.GetSnowAmount(m_buildingId, ref building);
+                            int iCapacity = buildingAI.m_snowCapacity;
+
+                            WarnText(false, true, iAmount, iCapacity);
+                            tooltip = MakeTooltip(iAmount, iCapacity);
+                            return Utils.MakePercent(iAmount, iCapacity);
+                        }
+                        break;
+                    }
+            }
+
+            tooltip = "";
+            return "";
+        }
+    }
+}
