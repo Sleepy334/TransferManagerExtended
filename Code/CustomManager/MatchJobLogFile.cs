@@ -50,7 +50,7 @@ namespace TransferManagerCore.CustomManager
                 {
                     if (string.IsNullOrEmpty(s_path))
                     {
-                        string dir = Path.Combine(UserSettingsDir, "TransferManagerCore");
+                        string dir = Path.Combine(UserSettingsDir, "TransferManagerExtended");
 
                         // Check if the folder exists
                         if (!Directory.Exists(dir))
