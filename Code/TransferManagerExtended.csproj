@@ -8,7 +8,7 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <Deterministic>False</Deterministic>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-    <Configurations>Debug;Release;TEST Release;TEST Debug</Configurations>
+    <Configurations>Debug;Release;</Configurations>
     <DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
   </PropertyGroup>
 
@@ -17,20 +17,8 @@
     <NoWarn>1701;1702;8600;8602;8604;8618;8625</NoWarn>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='TEST Debug|AnyCPU'">
-    <Optimize>False</Optimize>
-    <DefineConstants>$(DefineConstants);DEBUG</DefineConstants>
-    <NoWarn>1701;1702;8600;8602;8604;8618;8625</NoWarn>
-  </PropertyGroup>
-
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <Optimize>True</Optimize>
-    <NoWarn>1701;1702;8600;8602;8604;8618;8625</NoWarn>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='TEST Release|AnyCPU'">
-    <Optimize>True</Optimize>
-    <DefineConstants>$(DefineConstants);RELEASE</DefineConstants>
     <NoWarn>1701;1702;8600;8602;8604;8618;8625</NoWarn>
   </PropertyGroup>
 

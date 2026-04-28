@@ -1,94 +1,147 @@
-using ColossalFramework.IO;
+using System.Reflection;
 using ColossalFramework;
 using HarmonyLib;
 using SleepyCommon;
 using static RenderManager;
-using System;
-using System.Reflection;
+using static TransferManager;
 
 namespace TransferManagerCore
 {
     [HarmonyPatch]
     public class TransferManagerAwakePatch
     {
+        // --------------------------------------------------------------------
         public const int iTransferManagerSettingsVersion = 1;
-
         public const int NEW_TRANSFER_REASON_COUNT = 256;
 
-        private static TransferManager.TransferOffer[] m_outgoingOffers;
-        private static TransferManager.TransferOffer[] m_incomingOffers;
-        private static ushort[] m_outgoingCount;
-        private static ushort[] m_incomingCount;
-        private static int[] m_outgoingAmount;
-        private static int[] m_incomingAmount;
+        // --------------------------------------------------------------------
+        private const int PRIORITY_SIZE = 8;
+        private const int REASON_ARRAY_SIZE = 256;
+
+        private const int NEW_TRANSFER_OFFER_SIZE = NEW_TRANSFER_REASON_COUNT * PRIORITY_SIZE * REASON_ARRAY_SIZE;
+        private const int NEW_TRANSFER_COUNT_SIZE = NEW_TRANSFER_REASON_COUNT * PRIORITY_SIZE;
+        private const int NEW_TRANSFER_AMOUNT_SIZE = NEW_TRANSFER_REASON_COUNT;
+
+        // --------------------------------------------------------------------
+        public static bool IsTransferReasonArraysPatched()
+        {
+#if DEBUG
+            CDebug.Log($"IsTransferReasonArraysPatched");
+#endif
+            // Check all the arrays have the new sizes
+            TransferManager instance = Singleton<TransferManager>.instance;
+
+            TransferManager.TransferOffer[] ___m_outgoingOffers = (TransferOffer[])typeof(TransferManager).GetField("m_outgoingOffers", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(instance);
+            TransferManager.TransferOffer[] ___m_incomingOffers = (TransferOffer[])typeof(TransferManager).GetField("m_incomingOffers", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(instance);
+            ushort[] ___m_outgoingCount = (ushort[])typeof(TransferManager).GetField("m_outgoingCount", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(instance);
+            ushort[] ___m_incomingCount = (ushort[])typeof(TransferManager).GetField("m_incomingCount", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(instance);
+            int[] ___m_outgoingAmount = (int[])typeof(TransferManager).GetField("m_outgoingAmount", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(instance);
+            int[] ___m_incomingAmount = (int[])typeof(TransferManager).GetField("m_incomingAmount", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(instance);
+
+            return ___m_outgoingOffers != null && (___m_outgoingOffers.Length == NEW_TRANSFER_OFFER_SIZE) &&
+                    ___m_incomingOffers != null && (___m_incomingOffers.Length == NEW_TRANSFER_OFFER_SIZE) &&
+                    ___m_outgoingCount != null && (___m_outgoingCount.Length == NEW_TRANSFER_COUNT_SIZE) &&
+                    ___m_incomingCount != null && (___m_incomingCount.Length == NEW_TRANSFER_COUNT_SIZE) &&
+                    ___m_outgoingAmount != null && (___m_outgoingAmount.Length == NEW_TRANSFER_AMOUNT_SIZE) &&
+                    ___m_incomingAmount != null && (___m_incomingAmount.Length == NEW_TRANSFER_AMOUNT_SIZE);
+        }
 
         // ----------------------------------------------------------------------------------------
         [HarmonyPatch(typeof(TransferManager), "Awake")]
         [HarmonyPostfix]
         [HarmonyPriority(Priority.First)]
-        public static void AwakePostfix(TransferManager __instance,
-                        ref TransferManager.TransferOffer[] ___m_outgoingOffers,
-                        ref TransferManager.TransferOffer[] ___m_incomingOffers,
-                        ref ushort[] ___m_outgoingCount,
-                        ref ushort[] ___m_incomingCount,
-                        ref int[] ___m_outgoingAmount,
-                        ref int[] ___m_incomingAmount)
+        public static void AwakePostfix()
         {
+            PatchTransferArrays();
+        }
+
+        // ----------------------------------------------------------------------------------------
+        public static void PatchTransferArraysManually()
+        {
+            PatchTransferArrays();
+        }
+
+        // ----------------------------------------------------------------------------------------
+        private static void PatchTransferArrays()
+        {
+            if (IsTransferReasonArraysPatched())
+            {
+                return;
+            }
 #if DEBUG
-            CDebug.Log($"Awake");
+            CDebug.Log($"Patching Transfer Reason arrays");
 #endif
-            int newSize = NEW_TRANSFER_REASON_COUNT;
-            int newCountSize = newSize * 8;
-            int newOfferSize = newCountSize * 256;
 
-            if (___m_outgoingOffers.Length < newOfferSize)
+            TransferManager instance = Singleton<TransferManager>.instance;
+
+            // m_outgoingOffers
             {
-                CDebug.Log($"TransferManagerExtended: Resizing m_outgoingOffers from {___m_outgoingOffers.Length} to {newOfferSize}");
-                ___m_outgoingOffers = new TransferManager.TransferOffer[newOfferSize];
+                FieldInfo info = typeof(TransferManager).GetField("m_outgoingOffers", BindingFlags.Instance | BindingFlags.NonPublic);
+                TransferOffer[] m_outgoingOffers = (TransferOffer[])info.GetValue(Singleton<TransferManager>.instance);
+                CDebug.Log($"TransferManagerExtended: Resizing m_outgoingOffers from {m_outgoingOffers.Length} to {NEW_TRANSFER_OFFER_SIZE}");
+                m_outgoingOffers = new TransferManager.TransferOffer[NEW_TRANSFER_OFFER_SIZE];
+                info.SetValue(instance, m_outgoingOffers);
             }
 
-            if (___m_incomingOffers.Length < newOfferSize)
+
+            // m_incomingOffers
             {
-                CDebug.Log($"TransferManagerExtended: Resizing m_incomingOffers from {___m_incomingOffers.Length} to {newOfferSize}");
-                ___m_incomingOffers = new TransferManager.TransferOffer[newOfferSize];
+                FieldInfo info = typeof(TransferManager).GetField("m_incomingOffers", BindingFlags.Instance | BindingFlags.NonPublic);
+                TransferOffer[] m_incomingOffers = (TransferOffer[])info.GetValue(Singleton<TransferManager>.instance);
+                CDebug.Log($"TransferManagerExtended: Resizing m_incomingOffers from {m_incomingOffers.Length} to {NEW_TRANSFER_OFFER_SIZE}");
+                m_incomingOffers = new TransferManager.TransferOffer[NEW_TRANSFER_OFFER_SIZE];
+                info.SetValue(instance, m_incomingOffers);
             }
 
-            if (___m_outgoingCount.Length < newCountSize)
+
+            // m_outgoingCount
             {
-                CDebug.Log($"TransferManagerExtended: Resizing m_outgoingCount from {___m_outgoingCount.Length} to {newCountSize}");
-                ___m_outgoingCount = new ushort[newCountSize];
+                FieldInfo info = typeof(TransferManager).GetField("m_outgoingCount", BindingFlags.Instance | BindingFlags.NonPublic);
+                ushort[] m_outgoingCount = (ushort[])info.GetValue(Singleton<TransferManager>.instance);
+                CDebug.Log($"TransferManagerExtended: Resizing m_outgoingCount from {m_outgoingCount.Length} to {NEW_TRANSFER_COUNT_SIZE}");
+                m_outgoingCount = new ushort[NEW_TRANSFER_COUNT_SIZE];
+                info.SetValue(instance, m_outgoingCount);
             }
 
-            if (___m_incomingCount.Length < newCountSize)
+            // m_incomingCount
             {
-                CDebug.Log($"TransferManagerExtended: Resizing m_incomingCount from {___m_incomingCount.Length} to {newCountSize}");
-                ___m_incomingCount = new ushort[newCountSize];
+                FieldInfo info = typeof(TransferManager).GetField("m_incomingCount", BindingFlags.Instance | BindingFlags.NonPublic);
+                ushort[] m_incomingCount = (ushort[])info.GetValue(Singleton<TransferManager>.instance);
+                CDebug.Log($"TransferManagerExtended: Resizing m_incomingCount from {m_incomingCount.Length} to {NEW_TRANSFER_COUNT_SIZE}");
+                m_incomingCount = new ushort[NEW_TRANSFER_COUNT_SIZE];
+                info.SetValue(instance, m_incomingCount);
             }
 
-            if (___m_outgoingAmount.Length < newSize)
+
+            // m_outgoingAmount
             {
-                CDebug.Log($"TransferManagerExtended: Resizing m_outgoingAmount from {___m_outgoingAmount.Length} to {newSize}");
-                ___m_outgoingAmount = new int[newSize];
+                FieldInfo info = typeof(TransferManager).GetField("m_outgoingAmount", BindingFlags.Instance | BindingFlags.NonPublic);
+                int[] m_outgoingAmount = (int[])info.GetValue(Singleton<TransferManager>.instance);
+                CDebug.Log($"TransferManagerExtended: Resizing m_outgoingAmount from {m_outgoingAmount.Length} to {NEW_TRANSFER_AMOUNT_SIZE}");
+                m_outgoingAmount = new int[NEW_TRANSFER_AMOUNT_SIZE];
+                info.SetValue(instance, m_outgoingAmount);
             }
 
-            if (___m_incomingAmount.Length < newSize)
+            // m_incomingAmount
             {
-                CDebug.Log($"TransferManagerExtended: Resizing m_incomingAmount from {___m_incomingAmount.Length} to {newSize}");
-                ___m_incomingAmount = new int[newSize];
+                FieldInfo info = typeof(TransferManager).GetField("m_incomingAmount", BindingFlags.Instance | BindingFlags.NonPublic);
+                int[] m_incomingAmount = (int[])info.GetValue(Singleton<TransferManager>.instance);
+                CDebug.Log($"TransferManagerExtended: Resizing m_incomingAmount from {m_incomingAmount.Length} to {NEW_TRANSFER_AMOUNT_SIZE}");
+                m_incomingAmount = new int[NEW_TRANSFER_AMOUNT_SIZE];
+                info.SetValue(instance, m_incomingAmount);
             }
-
-            // Store pointers to the transfer storage arrays for serialization
-            m_outgoingOffers = ___m_outgoingOffers;
-            m_incomingOffers = ___m_incomingOffers;
-            m_outgoingCount = ___m_outgoingCount;
-            m_incomingCount = ___m_incomingCount;
-            m_outgoingAmount = ___m_outgoingAmount;
-            m_incomingAmount = ___m_incomingAmount;
         }
 
         // --------------------------------------------------------------------
         public static void LoadData(int iGlobalVersion, byte[] Data, ref int iIndex)
         {
+            TransferManager.TransferOffer[] m_outgoingOffers = (TransferOffer[])typeof(TransferManager).GetField("m_outgoingOffers", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(Singleton<TransferManager>.instance);
+            TransferManager.TransferOffer[] m_incomingOffers = (TransferOffer[])typeof(TransferManager).GetField("m_incomingOffers", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(Singleton<TransferManager>.instance);
+            ushort[] m_outgoingCount = (ushort[])typeof(TransferManager).GetField("m_outgoingCount", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(Singleton<TransferManager>.instance);
+            ushort[] m_incomingCount = (ushort[])typeof(TransferManager).GetField("m_incomingCount", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(Singleton<TransferManager>.instance);
+            int[] m_outgoingAmount = (int[])typeof(TransferManager).GetField("m_outgoingAmount", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(Singleton<TransferManager>.instance);
+            int[] m_incomingAmount = (int[])typeof(TransferManager).GetField("m_incomingAmount", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(Singleton<TransferManager>.instance);
+
             int iTransferManagerTupleSize = StorageData.ReadInt32(Data, ref iIndex); // 4
             int iTransferManagerSettingsVersion = StorageData.ReadInt32(Data, ref iIndex); // 4
             int iTransferManagerReasonSize = StorageData.ReadInt32(Data, ref iIndex); // 4
@@ -360,6 +413,13 @@ namespace TransferManagerCore
         // --------------------------------------------------------------------
         public static void SaveData(FastList<byte> Data)
         {
+            TransferManager.TransferOffer[] m_outgoingOffers = (TransferOffer[])typeof(TransferManager).GetField("m_outgoingOffers", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(Singleton<TransferManager>.instance);
+            TransferManager.TransferOffer[] m_incomingOffers = (TransferOffer[])typeof(TransferManager).GetField("m_incomingOffers", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(Singleton<TransferManager>.instance);
+            ushort[] m_outgoingCount = (ushort[])typeof(TransferManager).GetField("m_outgoingCount", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(Singleton<TransferManager>.instance);
+            ushort[] m_incomingCount = (ushort[])typeof(TransferManager).GetField("m_incomingCount", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(Singleton<TransferManager>.instance);
+            int[] m_outgoingAmount = (int[])typeof(TransferManager).GetField("m_outgoingAmount", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(Singleton<TransferManager>.instance);
+            int[] m_incomingAmount = (int[])typeof(TransferManager).GetField("m_incomingAmount", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(Singleton<TransferManager>.instance);
+
             FastList<byte> tempData = new FastList<byte>();
 
             // Tuple size gets written first (At the end of the function

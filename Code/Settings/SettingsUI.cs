@@ -795,6 +795,15 @@ namespace TransferManagerCore
             });
             m_lblGhostVehicleCount = UISettings.AddDescription(panelMaintenance, "txtGhostVehiclesCount", panelMaintenance, 1.0f, Localization.Get("txtGhostVehiclesCount") + ": 0");
 
+            groupMaintenance.AddSpace(iSEPARATOR_HEIGHT);
+
+            // Clear Extended Reasons
+            UISettings.AddDescription(panelMaintenance, "txtClearExtendedReasons", panelMaintenance, 1.0f, Localization.Get("txtClearExtendedReasons"));
+            groupMaintenance.AddButton(Localization.Get("btnClearExtendedReasons"), () =>
+            {
+                ClearExtendedReasons.Clear();
+            });
+
             // ----------------------------------------------------------------
             // Match Set Logging
             UIHelper groupLogging = (UIHelper)helper.AddGroup(Localization.Get("GROUP_MAINTENANCE_LOGGING"));

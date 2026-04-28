@@ -487,3 +487,6 @@
 "TransportTypeShip","선박"
 "TransportTypeTrain","기차"
 "TransportTypeRoad","도로"
+"",""
+"txtClearExtendedReasons","Clear extended reasons to allow unsubscribing from this mod for this save game."
+"btnClearExtendedReasons","Clear Extended Reasons"

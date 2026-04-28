@@ -9,6 +9,7 @@ using TransferManagerCore.Settings;
 using TransferManagerCore.UI;
 using HarmonyLib;
 using System.Diagnostics.Eventing.Reader;
+using ColossalFramework;
 
 namespace TransferManagerCore
 {
@@ -72,9 +73,18 @@ namespace TransferManagerCore
         {
             base.OnEnabled();
 
-            if (DependencyUtils.IsHarmonyRunning())
+            Patcher.Patch(typeof(TransferManagerAwakePatch));
+
+            // Add our patch call to pre load level function just in case TransferManager.Awake has already been called
+            Singleton<LoadingManager>.instance.m_levelPreLoaded += OnPreLoadLevel;
+        }
+
+        public void OnPreLoadLevel()
+        {
+            if (!TransferManagerAwakePatch.IsTransferReasonArraysPatched())
             {
-                Patcher.Patch(typeof(TransferManagerAwakePatch));
+                // Force patching of arrays
+                TransferManagerAwakePatch.PatchTransferArraysManually();
             }
         }
 
@@ -83,6 +93,19 @@ namespace TransferManagerCore
             // Check for mod conflicts
             if (ConflictingMods.ConflictingModsFound())
             {
+                IsLoaded = false;
+                return;
+            }
+
+            // Check arrays have actually been extended
+            if (!TransferManagerAwakePatch.IsTransferReasonArraysPatched())
+            {
+                string strMessage = "Error: Transfer reason arrays unpatched.\r\n";
+                strMessage += "\r\n";
+                strMessage += "\r\nThis can happen if you enable the Transfer Manager Extended mod after the transfer reason arrays have already been created. Please restart Cities Skylines.";
+                strMessage += "\r\n";
+                strMessage += "\r\nMod disabled for this load.";
+                Prompt.Info(ModName, strMessage);
                 IsLoaded = false;
                 return;
             }

@@ -27,7 +27,7 @@ namespace TransferManagerCore
                 // Clear any previous settings
                 TransferManagerExtendedMod.Instance.ClearSettings();
 
-                if (m_serializableData is not null)
+                if (TransferManagerExtendedMod.Instance.IsLoaded && m_serializableData is not null)
                 {
                     byte[] Data = m_serializableData.LoadData(DataID);
                     if (Data is not null && Data.Length > 0)

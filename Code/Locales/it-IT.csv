@@ -485,3 +485,6 @@
 "TransportTypeShip","Ship"
 "TransportTypeTrain","Train"
 "TransportTypeRoad","Road"
+"",""
+"txtClearExtendedReasons","Clear extended reasons to allow unsubscribing from this mod for this save game."
+"btnClearExtendedReasons","Clear Extended Reasons"
