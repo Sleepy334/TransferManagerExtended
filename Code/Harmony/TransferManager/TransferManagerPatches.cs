@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using System.Collections.Generic;
+using HarmonyLib;
 using SleepyCommon;
 using TransferManagerCore.CustomManager;
 using TransferManagerCore.UI;
@@ -9,6 +10,22 @@ namespace TransferManagerCore
     [HarmonyPatch]
     public class TransferManagerPatches
     {
+        // We specifically choose even numbers as we are less likely to clash with the base games numbers.
+        // Also as the matching is done in separate threads I don't think we need the gap like they have done.
+        private static Dictionary<int, CustomTransferReason.Reason> s_frameReasonList = new Dictionary<int, CustomTransferReason.Reason>()
+        {
+            // Prison Helicopter Mod
+            { 100, CustomTransferReason.Reason.PoliceVanCrimeMove },
+            { 102, CustomTransferReason.Reason.CrimePickup2 },
+            { 104, CustomTransferReason.Reason.CrimeMove2 },
+
+            // TME reasons
+            { 148, CustomTransferReason.Reason.Crime2 },
+            { 180, CustomTransferReason.Reason.TaxiMove },
+            { 212, CustomTransferReason.Reason.Mail2 },
+            { 214, CustomTransferReason.Reason.IntercityBus },
+        };
+
         // ----------------------------------------------------------------------------------------
         [HarmonyPatch(typeof(TransferManager), "AddIncomingOffer")]
         [HarmonyPrefix]
@@ -80,7 +97,7 @@ namespace TransferManagerCore
         }
 
         // ----------------------------------------------------------------------------------------
-        // Patch GetFrameReason to support our new Crime2 reason. 149 was unused.
+        // Patch GetFrameReason to support our new transfer reasons.
         [HarmonyPatch(typeof(TransferManager), "GetFrameReason")]
         [HarmonyPostfix]
         public static void GetFrameReasonPostfix(int frameIndex, ref TransferReason __result)
@@ -90,58 +107,16 @@ namespace TransferManagerCore
 #endif
             if (SaveGameSettings.GetSettings().EnableNewTransferManager)
             {
-                // We specifically choose even numbers as we are less likely to clash with the base games numbers.
-                // Also as the matching is done in separate threads I don't think we need the gap like they have done.
-                switch (frameIndex)
+                if (s_frameReasonList.TryGetValue(frameIndex, out CustomTransferReason.Reason reason))
                 {
-                    case 148:
-                        {
-                            if (__result == TransferReason.None)
-                            {
-                                __result = (TransferReason)CustomTransferReason.Reason.Crime2;
-                            }
-                            else
-                            {
-                                CDebug.LogError($"Error: FrameIndex 148 is in use {__result}, Crime2 not available.");
-                            }
-                            break;
-                        }
-                    case 180:
-                        {
-                            if (__result == TransferReason.None)
-                            {
-                                __result = (TransferReason)CustomTransferReason.Reason.TaxiMove;
-                            }
-                            else
-                            {
-                                CDebug.LogError($"Error: FrameIndex 180 is in use {__result}, TaxiMove not available.");
-                            }
-                            break;
-                        }
-                    case 212:
-                        {
-                            if (__result == TransferReason.None)
-                            {
-                                __result = (TransferReason)CustomTransferReason.Reason.Mail2;
-                            }
-                            else
-                            {
-                                CDebug.LogError($"Error: FrameIndex 212 is in use {__result}, Mail2 not available.");
-                            }
-                            break;
-                        }
-                    case 214:
-                        {
-                            if (__result == TransferReason.None)
-                            {
-                                __result = (TransferReason)CustomTransferReason.Reason.IntercityBus;
-                            }
-                            else
-                            {
-                                CDebug.LogError($"Error: FrameIndex 214 is in use {__result}, IntercityBus not available.");
-                            }
-                            break;
-                        }
+                    if (__result == TransferReason.None)
+                    {
+                        __result = (TransferReason) reason;
+                    }
+                    else
+                    {
+                        CDebug.LogError($"Error: FrameIndex {frameIndex} is in use by {__result}, {reason} not available.");
+                    }
                 }
             }
         }
