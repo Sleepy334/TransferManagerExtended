@@ -138,7 +138,7 @@ namespace TransferManagerCore
                             ref NetSegment segment = ref NetManager.instance.m_segments.m_buffer[building.m_accessSegment];
                             if (segment.m_flags != 0)
                             {
-                                NetTool.RenderOverlay(cameraInfo, ref segment, KnownColor.green, KnownColor.green);
+                                NetTool.RenderOverlay(cameraInfo, ref segment, KnownColor.navy, KnownColor.navy);
                             }
                         }
 
@@ -148,7 +148,7 @@ namespace TransferManagerCore
                             ref NetSegment segment = ref NetManager.instance.m_segments.m_buffer[building.m_eventAccessSegment];
                             if (segment.m_flags != 0)
                             {
-                                NetTool.RenderOverlay(cameraInfo, ref segment, KnownColor.blue, KnownColor.blue);
+                                NetTool.RenderOverlay(cameraInfo, ref segment, KnownColor.navy, KnownColor.navy);
                             }
                         }
 

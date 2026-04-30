@@ -49,7 +49,7 @@ namespace TransferManagerCore
                                     sConflictingMods += "Taxi Stand Fix\r\n";
                                     break;
                                 }
-                            case "TransferManagerCore":
+                            case "TransferManagerCE":
                                 {
                                     sConflictingMods += "Transfer Manager CE\r\n";
                                     break;

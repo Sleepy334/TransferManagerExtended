@@ -11,7 +11,7 @@ namespace TransferManagerCore
     public class TransferManagerAwakePatch
     {
         // --------------------------------------------------------------------
-        public const int iTransferManagerSettingsVersion = 1;
+        public const int iTransferManagerSettingsVersion = 1; // Data file version
         public const int NEW_TRANSFER_REASON_COUNT = 256;
 
         // --------------------------------------------------------------------
@@ -25,9 +25,6 @@ namespace TransferManagerCore
         // --------------------------------------------------------------------
         public static bool IsTransferReasonArraysPatched()
         {
-#if DEBUG
-            CDebug.Log($"IsTransferReasonArraysPatched");
-#endif
             // Check all the arrays have the new sizes
             TransferManager instance = Singleton<TransferManager>.instance;
 
@@ -133,26 +130,43 @@ namespace TransferManagerCore
         }
 
         // --------------------------------------------------------------------
-        public static void LoadData(int iGlobalVersion, byte[] Data, ref int iIndex)
+        public static bool LoadData(byte[] Data)
         {
-            TransferManager.TransferOffer[] m_outgoingOffers = (TransferOffer[])typeof(TransferManager).GetField("m_outgoingOffers", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(Singleton<TransferManager>.instance);
-            TransferManager.TransferOffer[] m_incomingOffers = (TransferOffer[])typeof(TransferManager).GetField("m_incomingOffers", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(Singleton<TransferManager>.instance);
-            ushort[] m_outgoingCount = (ushort[])typeof(TransferManager).GetField("m_outgoingCount", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(Singleton<TransferManager>.instance);
-            ushort[] m_incomingCount = (ushort[])typeof(TransferManager).GetField("m_incomingCount", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(Singleton<TransferManager>.instance);
-            int[] m_outgoingAmount = (int[])typeof(TransferManager).GetField("m_outgoingAmount", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(Singleton<TransferManager>.instance);
-            int[] m_incomingAmount = (int[])typeof(TransferManager).GetField("m_incomingAmount", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(Singleton<TransferManager>.instance);
+            if (!IsTransferReasonArraysPatched())
+            {
+                CDebug.LogError($"Transfer Manager arrays not resized, unable to continue.");
+                return false;
+            }
 
-            int iTransferManagerTupleSize = StorageData.ReadInt32(Data, ref iIndex); // 4
-            int iTransferManagerSettingsVersion = StorageData.ReadInt32(Data, ref iIndex); // 4
+            TransferManager instance = Singleton<TransferManager>.instance;
+
+            FieldInfo infoOutgoingOffers = typeof(TransferManager).GetField("m_outgoingOffers", BindingFlags.Instance | BindingFlags.NonPublic);
+            FieldInfo infoIncomingOffers = typeof(TransferManager).GetField("m_incomingOffers", BindingFlags.Instance | BindingFlags.NonPublic);
+            FieldInfo infoOutgoingCount = typeof(TransferManager).GetField("m_outgoingCount", BindingFlags.Instance | BindingFlags.NonPublic);
+            FieldInfo infoIncomingCount = typeof(TransferManager).GetField("m_incomingCount", BindingFlags.Instance | BindingFlags.NonPublic);
+            FieldInfo infoOutgoingAmount = typeof(TransferManager).GetField("m_outgoingAmount", BindingFlags.Instance | BindingFlags.NonPublic);
+            FieldInfo infoIncomingAmount = typeof(TransferManager).GetField("m_incomingAmount", BindingFlags.Instance | BindingFlags.NonPublic);
+
+            TransferManager.TransferOffer[] m_outgoingOffers = (TransferOffer[]) infoOutgoingOffers.GetValue(Singleton<TransferManager>.instance);
+            TransferManager.TransferOffer[] m_incomingOffers = (TransferOffer[]) infoIncomingOffers.GetValue(Singleton<TransferManager>.instance);
+            ushort[] m_outgoingCount = (ushort[]) infoOutgoingCount.GetValue(Singleton<TransferManager>.instance);
+            ushort[] m_incomingCount = (ushort[]) infoIncomingCount.GetValue(Singleton<TransferManager>.instance);
+            int[] m_outgoingAmount = (int[]) infoOutgoingAmount.GetValue(Singleton<TransferManager>.instance);
+            int[] m_incomingAmount = (int[]) infoIncomingAmount.GetValue(Singleton<TransferManager>.instance);
+
+            int iIndex = 0;
+            int iTransferReasonDataVersion = StorageData.ReadInt32(Data, ref iIndex); // 4
             int iTransferManagerReasonSize = StorageData.ReadInt32(Data, ref iIndex); // 4
             int iTransferManagerNewReasonSize = StorageData.ReadInt32(Data, ref iIndex); // 4
             uint uiSavedTickIndex = StorageData.ReadUInt32(Data, ref iIndex); // 4
 
 #if DEBUG
-            CDebug.Log($"Global: {iGlobalVersion} iTransferManagerTupleSize: {iTransferManagerTupleSize} TransferManagerSettingsVersion: {iTransferManagerSettingsVersion} DataLength: {Data.Length} Index: {iIndex}");
+            CDebug.Log($"iTransferReasonDataVersion: {iTransferReasonDataVersion} DataLength: {Data.Length} Index: {iIndex}");
 #endif
+
             if (iTransferManagerReasonSize == TransferManager.TRANSFER_REASON_COUNT && 
-                uiSavedTickIndex == SimulationManager.instance.m_currentTickIndex)
+                uiSavedTickIndex == SimulationManager.instance.m_currentTickIndex &&
+                iTransferReasonDataVersion <= iTransferManagerSettingsVersion)
             {
                 // Read amounts
                 for (int i = iTransferManagerReasonSize; i < iTransferManagerNewReasonSize; i++)
@@ -400,14 +414,22 @@ namespace TransferManagerCore
                         }
                     }
                 }
+
+                // Now set values back
+                infoOutgoingOffers.SetValue(instance, m_outgoingOffers);
+                infoIncomingOffers.SetValue(instance, m_incomingOffers);
+                infoOutgoingCount.SetValue(instance, m_outgoingCount);
+                infoIncomingCount.SetValue(instance, m_incomingCount);
+                infoOutgoingAmount.SetValue(instance, m_outgoingAmount);
+                infoIncomingAmount.SetValue(instance, m_incomingAmount);
+
+                return true;
             }
             else
             {
-                // Just skip to end of data
-                CDebug.Log($"Transfer Reason data not loaded | iTransferManagerReasonSize: {iTransferManagerReasonSize} iNewTransferManagerSize: {iTransferManagerNewReasonSize} SimulationTickIndex: {SimulationManager.instance.m_currentTickIndex} SavedTickIndex: {uiSavedTickIndex}");
-                iIndex += iTransferManagerTupleSize - 20;
-            }
-
+                CDebug.LogError($"Transfer Reason data not loaded | iTransferManagerReasonSize: {iTransferManagerReasonSize} iNewTransferManagerSize: {iTransferManagerNewReasonSize} SimulationTickIndex: {SimulationManager.instance.m_currentTickIndex} SavedTickIndex: {uiSavedTickIndex}");
+                return false;
+            } 
         }
 
         // --------------------------------------------------------------------
@@ -420,19 +442,17 @@ namespace TransferManagerCore
             int[] m_outgoingAmount = (int[])typeof(TransferManager).GetField("m_outgoingAmount", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(Singleton<TransferManager>.instance);
             int[] m_incomingAmount = (int[])typeof(TransferManager).GetField("m_incomingAmount", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(Singleton<TransferManager>.instance);
 
-            FastList<byte> tempData = new FastList<byte>();
-
             // Tuple size gets written first (At the end of the function
-            StorageData.WriteInt32(iTransferManagerSettingsVersion, tempData);
-            StorageData.WriteInt32(TransferManager.TRANSFER_REASON_COUNT, tempData);
-            StorageData.WriteInt32(NEW_TRANSFER_REASON_COUNT, tempData);
-            StorageData.WriteUInt32(SimulationManager.instance.m_currentTickIndex, tempData);
+            StorageData.WriteInt32(iTransferManagerSettingsVersion, Data);
+            StorageData.WriteInt32(TransferManager.TRANSFER_REASON_COUNT, Data);
+            StorageData.WriteInt32(NEW_TRANSFER_REASON_COUNT, Data);
+            StorageData.WriteUInt32(SimulationManager.instance.m_currentTickIndex, Data);
 
             // Amounts
             for (int i = TransferManager.TRANSFER_REASON_COUNT; i < NEW_TRANSFER_REASON_COUNT; i++)
             {
-                StorageData.WriteInt32(m_incomingAmount[i], tempData);
-                StorageData.WriteInt32(m_outgoingAmount[i], tempData);
+                StorageData.WriteInt32(m_incomingAmount[i], Data);
+                StorageData.WriteInt32(m_outgoingAmount[i], Data);
             }
             
             // Counts
@@ -441,12 +461,12 @@ namespace TransferManagerCore
                 for (int k = 0; k < 8; k++)
                 {
                     int num2 = j * 8 + k;
-                    StorageData.WriteUInt16(m_incomingCount[num2], tempData);
+                    StorageData.WriteUInt16(m_incomingCount[num2], Data);
                 }
                 for (int l = 0; l < 8; l++)
                 {
                     int num3 = j * 8 + l;
-                    StorageData.WriteUInt16(m_outgoingCount[num3], tempData);
+                    StorageData.WriteUInt16(m_outgoingCount[num3], Data);
                 }
             }
 
@@ -460,7 +480,7 @@ namespace TransferManagerCore
                     num4 *= 256;
                     for (uint num6 = 0u; num6 < num5; num6++)
                     {
-                        StorageData.WriteBool(m_incomingOffers[num4 + num6].Active, tempData);
+                        StorageData.WriteBool(m_incomingOffers[num4 + num6].Active, Data);
                     }
                 }
                 for (int num7 = 0; num7 < 8; num7++)
@@ -470,7 +490,7 @@ namespace TransferManagerCore
                     num8 *= 256;
                     for (uint num10 = 0u; num10 < num9; num10++)
                     {
-                        StorageData.WriteBool(m_outgoingOffers[num8 + num10].Active, tempData);
+                        StorageData.WriteBool(m_outgoingOffers[num8 + num10].Active, Data);
                     }
                 }
             }
@@ -485,7 +505,7 @@ namespace TransferManagerCore
                     num13 *= 256;
                     for (uint num15 = 0u; num15 < num14; num15++)
                     {
-                        StorageData.WriteBool(m_incomingOffers[num13 + num15].Exclude, tempData);
+                        StorageData.WriteBool(m_incomingOffers[num13 + num15].Exclude, Data);
                     }
                 }
                 for (int num16 = 0; num16 < 8; num16++)
@@ -495,7 +515,7 @@ namespace TransferManagerCore
                     num17 *= 256;
                     for (uint num19 = 0u; num19 < num18; num19++)
                     {
-                        StorageData.WriteBool(m_outgoingOffers[num17 + num19].Exclude, tempData);
+                        StorageData.WriteBool(m_outgoingOffers[num17 + num19].Exclude, Data);
                     }
                 }
             }
@@ -510,7 +530,7 @@ namespace TransferManagerCore
                     num22 *= 256;
                     for (uint num24 = 0u; num24 < num23; num24++)
                     {
-                        StorageData.WriteInt32((byte)m_incomingOffers[num22 + num24].Priority, tempData);
+                        StorageData.WriteInt32((byte)m_incomingOffers[num22 + num24].Priority, Data);
                     }
                 }
                 for (int num25 = 0; num25 < 8; num25++)
@@ -520,7 +540,7 @@ namespace TransferManagerCore
                     num26 *= 256;
                     for (uint num28 = 0u; num28 < num27; num28++)
                     {
-                        StorageData.WriteInt32((byte)m_outgoingOffers[num26 + num28].Priority, tempData);
+                        StorageData.WriteInt32((byte)m_outgoingOffers[num26 + num28].Priority, Data);
                     }
                 }
             }
@@ -535,7 +555,7 @@ namespace TransferManagerCore
                     num31 *= 256;
                     for (uint num33 = 0u; num33 < num32; num33++)
                     {
-                        StorageData.WriteInt32((byte)m_incomingOffers[num31 + num33].Amount, tempData);
+                        StorageData.WriteInt32((byte)m_incomingOffers[num31 + num33].Amount, Data);
                     }
                 }
                 for (int num34 = 0; num34 < 8; num34++)
@@ -545,7 +565,7 @@ namespace TransferManagerCore
                     num35 *= 256;
                     for (uint num37 = 0u; num37 < num36; num37++)
                     {
-                        StorageData.WriteInt32((byte)m_outgoingOffers[num35 + num37].Amount, tempData);
+                        StorageData.WriteInt32((byte)m_outgoingOffers[num35 + num37].Amount, Data);
                     }
                 }
             }
@@ -560,7 +580,7 @@ namespace TransferManagerCore
                     num40 *= 256;
                     for (uint num42 = 0u; num42 < num41; num42++)
                     {
-                        StorageData.WriteInt32((byte)m_incomingOffers[num40 + num42].PositionX, tempData);
+                        StorageData.WriteInt32((byte)m_incomingOffers[num40 + num42].PositionX, Data);
                     }
                 }
                 for (int num43 = 0; num43 < 8; num43++)
@@ -570,7 +590,7 @@ namespace TransferManagerCore
                     num44 *= 256;
                     for (uint num46 = 0u; num46 < num45; num46++)
                     {
-                        StorageData.WriteInt32((byte)m_outgoingOffers[num44 + num46].PositionX, tempData);
+                        StorageData.WriteInt32((byte)m_outgoingOffers[num44 + num46].PositionX, Data);
                     }
                 }
             }
@@ -585,7 +605,7 @@ namespace TransferManagerCore
                     num49 *= 256;
                     for (uint num51 = 0u; num51 < num50; num51++)
                     {
-                        StorageData.WriteInt32((byte)m_incomingOffers[num49 + num51].PositionZ, tempData);
+                        StorageData.WriteInt32((byte)m_incomingOffers[num49 + num51].PositionZ, Data);
                     }
                 }
                 for (int num52 = 0; num52 < 8; num52++)
@@ -595,7 +615,7 @@ namespace TransferManagerCore
                     num53 *= 256;
                     for (uint num55 = 0u; num55 < num54; num55++)
                     {
-                        StorageData.WriteInt32((byte)m_outgoingOffers[num53 + num55].PositionZ, tempData);
+                        StorageData.WriteInt32((byte)m_outgoingOffers[num53 + num55].PositionZ, Data);
                     }
                 }
             }
@@ -610,7 +630,7 @@ namespace TransferManagerCore
                     num58 *= 256;
                     for (uint num60 = 0u; num60 < num59; num60++)
                     {
-                        StorageData.WriteByte((byte)m_incomingOffers[num58 + num60].m_object.Type, tempData);
+                        StorageData.WriteByte((byte)m_incomingOffers[num58 + num60].m_object.Type, Data);
                     }
                 }
                 for (int num61 = 0; num61 < 8; num61++)
@@ -620,7 +640,7 @@ namespace TransferManagerCore
                     num62 *= 256;
                     for (uint num64 = 0u; num64 < num63; num64++)
                     {
-                        StorageData.WriteByte((byte)m_outgoingOffers[num62 + num64].m_object.Type, tempData);
+                        StorageData.WriteByte((byte)m_outgoingOffers[num62 + num64].m_object.Type, Data);
                     }
                 }
             }
@@ -635,7 +655,7 @@ namespace TransferManagerCore
                     num67 *= 256;
                     for (uint num69 = 0u; num69 < num68; num69++)
                     {
-                        StorageData.WriteUInt32(m_incomingOffers[num67 + num69].m_object.Index, tempData);
+                        StorageData.WriteUInt32(m_incomingOffers[num67 + num69].m_object.Index, Data);
                     }
                 }
                 for (int num70 = 0; num70 < 8; num70++)
@@ -645,7 +665,7 @@ namespace TransferManagerCore
                     num71 *= 256;
                     for (uint num73 = 0u; num73 < num72; num73++)
                     {
-                        StorageData.WriteUInt32(m_outgoingOffers[num71 + num73].m_object.Index, tempData);
+                        StorageData.WriteUInt32(m_outgoingOffers[num71 + num73].m_object.Index, Data);
                     }
                 }
             }
@@ -660,7 +680,7 @@ namespace TransferManagerCore
                     num76 *= 256;
                     for (uint num78 = 0u; num78 < num77; num78++)
                     {
-                        StorageData.WriteByte(m_incomingOffers[num76 + num78].m_isLocalPark, tempData);
+                        StorageData.WriteByte(m_incomingOffers[num76 + num78].m_isLocalPark, Data);
                     }
                 }
                 for (int num79 = 0; num79 < 8; num79++)
@@ -670,14 +690,10 @@ namespace TransferManagerCore
                     num80 *= 256;
                     for (uint num82 = 0u; num82 < num81; num82++)
                     {
-                        StorageData.WriteByte(m_outgoingOffers[num80 + num82].m_isLocalPark, tempData);
+                        StorageData.WriteByte(m_outgoingOffers[num80 + num82].m_isLocalPark, Data);
                     }
                 }
             }
-
-            // Write data length first
-            StorageData.WriteInt32(tempData.m_size + 4, Data);
-            StorageData.AddToData(tempData.ToArray(), Data);
         }
     }
 }

@@ -828,7 +828,7 @@ namespace TransferManagerCore
 
             // Log file path
             groupLogging.AddSpace(iSEPARATOR_HEIGHT);
-            UISettings.AddDescription(groupLogging, "txtMatchLoggingPath", 1.0f, Localization.Get("txtMatchLoggingPath") + " " + Path.Combine(ModSettings.UserSettingsDir, "TransferManagerCore"));
+            UISettings.AddDescription(groupLogging, "txtMatchLoggingPath", 1.0f, $"{Localization.Get("txtMatchLoggingPath")} {MatchJobLogFile.LogFileFolder}");
 
             // ----------------------------------------------------------------
             UIHelper groupPathing = (UIHelper)helper.AddGroup(Localization.Get("GROUP_MAINTENANCE_PATHING"));

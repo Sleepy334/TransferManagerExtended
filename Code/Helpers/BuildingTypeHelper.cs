@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.Remoting.Messaging;
+using ColossalFramework;
 using TransferManagerCore.CustomManager;
+using UnityEngine;
 using static RenderManager;
 using static TransferManager;
 using static TransferManagerCore.BuildingTypeHelper;
@@ -1333,6 +1335,25 @@ namespace TransferManagerCore
                    building.Info.GetService() == ItemClass.Service.PublicTransport &&
                    building.Info.GetSubService() == ItemClass.SubService.PublicTransportPost &&
                    building.Info.GetClassLevel() == ItemClass.Level.Level5;
+        }
+
+        public static bool IsMainBuilding(Building building)
+        {
+            if (building.m_flags != 0 && building.Info is not null)
+            {
+                switch (building.Info.GetAI())
+                {
+                    case ParkGateAI:
+                    case AirportEntranceAI:
+                    case MainIndustryBuildingAI:
+                    case MainCampusBuildingAI:
+                        {
+                            return true;
+                        }
+                }
+            }
+
+            return false;
         }
     }
 }

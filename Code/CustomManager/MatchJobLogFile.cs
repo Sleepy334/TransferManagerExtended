@@ -21,6 +21,14 @@ namespace TransferManagerCore.CustomManager
             Error,
         }
 
+        public static string LogFileFolder
+        {
+            get
+            {
+                return Path.Combine(UserSettingsDir, "TransferManagerExtended");
+            }
+        }
+
         private CustomTransferReason.Reason m_material;
         private LogCandidates m_candidateLogging = LogCandidates.All;
         Dictionary<ExclusionReason, int> m_candidateReasons = new Dictionary<ExclusionReason, int>();
@@ -50,7 +58,7 @@ namespace TransferManagerCore.CustomManager
                 {
                     if (string.IsNullOrEmpty(s_path))
                     {
-                        string dir = Path.Combine(UserSettingsDir, "TransferManagerExtended");
+                        string dir = LogFileFolder;
 
                         // Check if the folder exists
                         if (!Directory.Exists(dir))

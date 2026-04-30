@@ -92,22 +92,12 @@ namespace TransferManagerCore
             else if (offer.Building != 0 && SaveGameSettings.GetSettings().MainBuildingPostTruck)
             {
                 Building building = BuildingManager.instance.m_buildings.m_buffer[offer.Building];
-                if (building.m_flags != 0 && building.Info is not null)
+                if (building.m_flags != 0 && BuildingTypeHelper.IsMainBuilding(building))
                 {
-                    switch (building.Info.GetAI())
+                    // We alternate Mail and Mail2 (2/3 Mail2) requests so we can collect mail with post trucks for these building types
+                    if (Singleton<SimulationManager>.instance.m_randomizer.Int32(3u) != 0)
                     {
-                        case ParkGateAI:
-                        case AirportEntranceAI:
-                        case MainIndustryBuildingAI:
-                        case MainCampusBuildingAI:
-                            {
-                                // We alternate Mail and Mail2 requests so we can collect mail with post trucks for these building types
-                                if (Singleton<SimulationManager>.instance.m_randomizer.Int32(2u) != 0)
-                                {
-                                    material = (TransferReason) CustomTransferReason.Reason.Mail2;
-                                }
-                                break;
-                            }
+                        material = (TransferReason)CustomTransferReason.Reason.Mail2;
                     }
                 }
             }

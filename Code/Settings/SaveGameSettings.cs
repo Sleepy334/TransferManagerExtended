@@ -695,38 +695,38 @@ namespace TransferManagerCore
 
         public string DebugSettings()
         {
-            string sMessage = "===== Save Game Settings =====\r\n";
-            sMessage += "EnableNewTransferManager: " + EnableNewTransferManager + "\r\n";
+            string sMessage = "===== Save Game Settings =====";
+            sMessage += "\r\nEnableNewTransferManager: " + EnableNewTransferManager;
 
             // Warehouse
-            sMessage += "WarehouseFirst: " + WarehouseFirst + "\r\n";
-            sMessage += "WarehouseReserveTrucks: " + WarehouseReserveTrucksPercent + "\r\n";
-            
+            sMessage += "\r\nWarehouseFirst: " + WarehouseFirst;
+            sMessage += "\r\nWarehouseReserveTrucks: " + WarehouseReserveTrucksPercent;
+
             // Import / Export
-            sMessage += "ShipCargoPriority: " + OutsideShipCargoPriority + "\r\n";
-            sMessage += "PlaneCargoPriority: " + OutsidePlaneCargoPriority + "\r\n";
-            sMessage += "TrainCargoPriority: " + OutsideTrainCargoPriority + "\r\n";
-            sMessage += "RoadCargoPriority: " + OutsideRoadCargoPriority + "\r\n";
+            sMessage += "\r\nShipCargoPriority: " + OutsideShipCargoPriority;
+            sMessage += "\r\nPlaneCargoPriority: " + OutsidePlaneCargoPriority;
+            sMessage += "\r\nTrainCargoPriority: " + OutsideTrainCargoPriority;
+            sMessage += "\r\nRoadCargoPriority: " + OutsideRoadCargoPriority;
 
-            sMessage += "ShipCitizenPriority: " + OutsideShipCitizenPriority + "\r\n";
-            sMessage += "PlaneCitizenPriority: " + OutsidePlaneCitizenPriority + "\r\n";
-            sMessage += "TrainCitizenPriority: " + OutsideTrainCitizenPriority + "\r\n";
-            sMessage += "RoadCitizenPriority: " + OutsideRoadCitizenPriority + "\r\n";
+            sMessage += "\r\nShipCitizenPriority: " + OutsideShipCitizenPriority;
+            sMessage += "\r\nPlaneCitizenPriority: " + OutsidePlaneCitizenPriority;
+            sMessage += "\r\nTrainCitizenPriority: " + OutsideTrainCitizenPriority;
+            sMessage += "\r\nRoadCitizenPriority: " + OutsideRoadCitizenPriority;
 
-            sMessage += "ExportVehicleLimit: " + ExportVehicleLimit + "\r\n";
+            sMessage += "\r\nExportVehicleLimit: " + ExportVehicleLimit;
 
             // Services
-            sMessage += "PreferLocalService: " + PreferLocalService + "\r\n";
-            sMessage += "ImprovedDeathcareMatching: " + ImprovedDeathcareMatching + "\r\n";
-            sMessage += "ImprovedGarbageMatching: " + ImprovedGarbageMatching + "\r\n";
-            sMessage += "ImprovedCrimeMatching: " + ImprovedCrimeMatching + "\r\n";
+            sMessage += "\r\nPreferLocalService: " + PreferLocalService;
+            sMessage += "\r\nImprovedDeathcareMatching: " + ImprovedDeathcareMatching;
+            sMessage += "\r\nImprovedGarbageMatching: " + ImprovedGarbageMatching;
+            sMessage += "\r\nImprovedCrimeMatching: " + ImprovedCrimeMatching;
 
             if (m_ActiveDistanceRestrictions is not null)
             {
                 sMessage += "\r\nDistanceRestrictionCount: " + m_ActiveDistanceRestrictions.Count;
                 foreach (KeyValuePair<CustomTransferReason.Reason, int> kvp in m_ActiveDistanceRestrictions)
                 {
-                    sMessage += "\r\nKey: " + kvp.Key + " Value: " + kvp.Value + " (" + Math.Sqrt(kvp.Value) * 0.001 + ")";
+                    sMessage += $"\r\nKey: {kvp.Key} Value: {kvp.Value}  ({Math.Sqrt(kvp.Value) * 0.001})";
                 }
             }
 

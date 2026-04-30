@@ -12,6 +12,7 @@ namespace TransferManagerCore
     [HarmonyPatch]
     public class TaxiAIPatch
     {
+        // --------------------------------------------------------------------
         // This transpiler patches TaxiAI.SimulationStep to skip over the transfer offer calls so we can add our own instead
         [HarmonyPatch(typeof(TaxiAI), "SimulationStep", 
             new Type[] { typeof(ushort), typeof(Vehicle), typeof(Vehicle.Frame), typeof(ushort), typeof(Vehicle), typeof(int) }, 
@@ -69,6 +70,7 @@ namespace TransferManagerCore
             CDebug.Log($"TaxiAISimulationStepTranspiler - Patching of TaxiAI.SimulationStep {(bPatched ? "succeeded" : "failed")}.", false);
         }
 
+        // --------------------------------------------------------------------
         public static void AddTaxiOffers(TaxiAI __instance, ushort vehicleID, ref Vehicle vehicleData)
         {
             bool bIsAtTaxiStand = IsAtTaxiStand(vehicleData);
@@ -96,6 +98,7 @@ namespace TransferManagerCore
             }
         }
 
+        // --------------------------------------------------------------------
         public static bool IsAtTaxiStand(Vehicle vehicleData)
         {
             // WaitingCargo = Waiting at TaxiStand
