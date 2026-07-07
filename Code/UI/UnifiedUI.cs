@@ -19,11 +19,11 @@ namespace TransferManagerCore
                 Texture2D icon = TextureResources.LoadDllResource(Assembly.GetExecutingAssembly(), "Transfer.png", 32, 32);
                 if (icon is null)
                 {
-                    CDebug.Log("Failed to load icon from resources");
+                    Log.Info("Failed to load icon from resources");
                     return;
                 }
 
-                s_button = UUIHelpers.RegisterCustomButton("TransferManagerCore", null, TransferManagerExtendedMod.Instance.Name, icon, OnToggle, null, null);
+                s_button = UUIHelpers.RegisterCustomButton("TransferManagerCE", null, TransferManagerMod.Instance.Name, icon, OnToggle, null, null);
             }
         }
 

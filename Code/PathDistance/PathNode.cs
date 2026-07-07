@@ -263,7 +263,7 @@ namespace TransferManagerCore
                     }
                 default:
                     {
-                        CDebug.Log($"Type: {offer.m_object.Type} Index: {offer.m_object.Index}");
+                        Log.Info($"Type: {offer.m_object.Type} Index: {offer.m_object.Index}");
                         return FindPathPosition(material, offer.m_object);
                     }
             }

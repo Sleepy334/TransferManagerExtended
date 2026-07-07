@@ -53,7 +53,7 @@ namespace TransferManagerCore.UI
             }
             catch (Exception ex)
             {
-                CDebug.Log(ex);
+                Log.Error(ex);
             }
 
             return null;

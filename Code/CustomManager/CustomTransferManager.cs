@@ -1,15 +1,15 @@
 ﻿using System;
+using System.Text;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 using ColossalFramework.Math;
-using System.Text;
-using static TransferManagerCore.NetworkModeHelper;
-using static TransferManagerCore.CustomManager.PathDistanceTypes;
-using static TransferManagerCore.CustomManager.TransferManagerModes;
 using TransferManagerCore.Settings;
-using TransferManagerCore.CustomManager.Stats;
 using static TransferManagerCore.CustomManager.TransferRestrictions;
+using static TransferManagerCore.CustomManager.TransferManagerModes;
+using static TransferManagerCore.CustomManager.PathDistanceTypes;
+using static TransferManagerCore.NetworkModeHelper;
+using TransferManagerCore.CustomManager.Stats;
 
 namespace TransferManagerCore.CustomManager
 {

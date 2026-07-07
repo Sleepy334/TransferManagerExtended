@@ -2,41 +2,45 @@ using ICities;
 using SleepyCommon;
 using System;
 using System.Reflection;
-using TransferManagerCore;
 using TransferManagerCore.Settings;
 
-namespace TransferManagerExtended // Cannot be shared with TMCE
+namespace TransferManagerCore
 {
     public class TransferManagerSerializer : ISerializableDataExtension
     {
         // --------------------------------------------------------------------
-        // TME Settings
-        public const ushort DataFileVersion = 55;
+        // Serializer Global Version, increment this when updating any save game settings
+        public const ushort DataFileVersion = 56;
 
-        string[] TransferManagerExtendedIds = 
-        [
-            "TransferManagerExtended.VersionInfo",
-            "TransferManagerExtended.GlobalSettings",
-            "TransferManagerExtended.BuildingSettings",
-            "TransferManagerExtended.OutsideSettings"
-        ];
-
-        string[] TransferManagerCEIds = 
-        [
-            "TransferManagerCE.VersionInfo",
-            "TransferManagerCE.GlobalSettings",
-            "TransferManagerCE.BuildingSettings",
-            "TransferManagerCE.OutsideSettings"
-        ];
-
-        // TME Version 54 Data settings
+        // --------------------------------------------------------------------
         private const string TransferManagerExtendedDataID = "TransferManagerExtended";
-
-        // Transfer Manager CE Settings 
         private const string TransferManagerCEDataID = "TransferManagerCE";
 
+#if TRANSFER_MANAGER_EXTENDED
+        private const string TransferManagerDataID = TransferManagerExtendedDataID;
+#else
+        private const string TransferManagerDataID = TransferManagerCEDataID;
+#endif
+
+        string[] TransferManagerIds = 
+        [
+            $"{TransferManagerDataID}.VersionInfo",
+            $"{TransferManagerDataID}.GlobalSettings",
+            $"{TransferManagerDataID}.BuildingSettings",
+            $"{TransferManagerDataID}.OutsideSettings"
+        ];
+
+        // Used to load TMCE settings into TME
+        string[] TransferManagerCEIds = 
+        [
+            $"{TransferManagerCEDataID}.VersionInfo",
+            $"{TransferManagerCEDataID}.GlobalSettings",
+            $"{TransferManagerCEDataID}.BuildingSettings",
+            $"{TransferManagerCEDataID}.OutsideSettings"
+        ];
+
         // Extended transer reason value
-        public const string TransferReasonID = "TransferManagerExtended.TransferReasons";
+        public const string TransferReasonID = $"{TransferManagerDataID}.TransferReasons";
 
         public static TransferManagerSerializer? instance = null;
         private ISerializableData? m_serializableData = null;
@@ -70,7 +74,7 @@ namespace TransferManagerExtended // Cannot be shared with TMCE
                         StorageData.WriteInt32(modVersion.Build, Data);
                         StorageData.WriteInt32(modVersion.Revision, Data);
 
-                        m_serializableData.SaveData(TransferManagerExtendedIds[0], Data.ToArray());
+                        m_serializableData.SaveData(TransferManagerIds[0], Data.ToArray());
                     }
 
                     // --------------------------------------------------------
@@ -78,7 +82,7 @@ namespace TransferManagerExtended // Cannot be shared with TMCE
                     {
                         FastList<byte> Data = new FastList<byte>();
                         SaveGameSettings.SaveData(Data);
-                        m_serializableData.SaveData(TransferManagerExtendedIds[1], Data.ToArray());
+                        m_serializableData.SaveData(TransferManagerIds[1], Data.ToArray());
                     }
 
                     // --------------------------------------------------------
@@ -86,7 +90,7 @@ namespace TransferManagerExtended // Cannot be shared with TMCE
                     {
                         FastList<byte> Data = new FastList<byte>();
                         BuildingSettingsSerializer.SaveData(Data);
-                        m_serializableData.SaveData(TransferManagerExtendedIds[2], Data.ToArray());
+                        m_serializableData.SaveData(TransferManagerIds[2], Data.ToArray());
                     }
 
                     // --------------------------------------------------------
@@ -94,9 +98,10 @@ namespace TransferManagerExtended // Cannot be shared with TMCE
                     {
                         FastList<byte> Data = new FastList<byte>();
                         OutsideConnectionSettings.SaveData(Data);
-                        m_serializableData.SaveData(TransferManagerExtendedIds[3], Data.ToArray());
+                        m_serializableData.SaveData(TransferManagerIds[3], Data.ToArray());
                     }
 
+#if TRANSFER_MANAGER_EXTENDED
                     // --------------------------------------------------------
                     // Transfer Reason array entries (We save from TRANSFER_REASON_COUNT to 256.
                     {
@@ -104,11 +109,12 @@ namespace TransferManagerExtended // Cannot be shared with TMCE
                         TransferManagerAwakePatch.SaveData(Data);
                         m_serializableData.SaveData(TransferReasonID, Data.ToArray());
                     }
+#endif
                 }
             }
             catch (Exception ex)
             {
-                CDebug.Log("Could not save data. " + ex.Message);
+                Log.Error("Could not save data. " + ex.Message);
             }
         }
 
@@ -118,14 +124,15 @@ namespace TransferManagerExtended // Cannot be shared with TMCE
             try
             {
                 // Clear any previous settings
-                TransferManagerExtendedMod.Instance.ClearSettings();
+                TransferManagerMod.Instance.ClearSettings();
 
                 if (m_serializableData is null)
                 {
-                    CDebug.LogError("m_serializableData is null");
+                    Log.Error("m_serializableData is null");
                     return;
                 }
 
+#if TRANSFER_MANAGER_EXTENDED
                 // --------------------------------------------------------
                 // Transfer Reason array data
                 {
@@ -134,39 +141,44 @@ namespace TransferManagerExtended // Cannot be shared with TMCE
                     {
                         if (!TransferManagerAwakePatch.LoadData(Data))
                         {
-                            CDebug.LogError("Extended transfer reason array data not loaded.");
+                            Log.Error("Extended transfer reason array data not loaded.");
                         }
                     }
                 }
+#endif
 
                 // --------------------------------------------------------
-                // Transfer Manager Extended Settings
-                ushort SaveGameFileVersion = LoadTransferManagerVersionInfo(TransferManagerExtendedIds[0], TransferManagerExtendedDataID, out int iMajor, out int iMinor, out int iBuild, out int iRevision);
+                // Transfer Manager Settings
+                ushort SaveGameFileVersion = LoadTransferManagerVersionInfo(TransferManagerIds[0], TransferManagerDataID, out int iMajor, out int iMinor, out int iBuild, out int iRevision);
                 if (SaveGameFileVersion > 0)
                 {
+                    Log.Info($"Save Game Version: {SaveGameFileVersion} DataFileVersion: {DataFileVersion}");
+
                     if (SaveGameFileVersion > DataFileVersion)
                     {
-                        string sMessage = $"This saved game was saved with a newer version of {TransferManagerExtendedMod.Instance.BaseModName}.\r\n";
+                        Log.Warning($"Unable to load settings, settings too new.");
+
+                        string sMessage = $"This saved game was saved with a newer version of {TransferManagerMod.Instance.BaseModName}.\r\n";
                         sMessage += "\r\n";
                         sMessage += "Unable to load Transfer Manager settings.\r\n";
                         sMessage += "\r\n";
                         sMessage += "Saved game data version: " + SaveGameFileVersion + "\r\n";
                         sMessage += "MOD data version: " + DataFileVersion + "\r\n";
-                        Prompt.Info(TransferManagerExtendedMod.Instance.Name, sMessage);
+                        Prompt.Info(TransferManagerMod.Instance.Name, sMessage);
                         return;
                     }
                     else
                     {
-                        CDebug.Log($"Settings written by Transfer Manager Extended v: {iMajor}.{iMinor}.{iBuild}.{iRevision}");
+                        Log.Info($"Settings written by {TransferManagerMod.Instance.BaseModName} v{iMajor}.{iMinor}.{iBuild}.{iRevision}");
 
                         if (SaveGameFileVersion >= 55)
                         {
                             // From data file version 55 onwards each settings object uses its own data tuple.
-                            LoadTransferManagerMultipleDataTuple(SaveGameFileVersion, TransferManagerExtendedIds);
+                            LoadTransferManagerMultipleDataTuple(SaveGameFileVersion, TransferManagerIds);
                         }
                         else
                         {
-                            LoadTransferManagerSingleDataTuple(TransferManagerExtendedDataID, out iMajor, out iMinor, out iBuild, out iRevision);
+                            LoadTransferManagerSingleDataTuple(TransferManagerDataID, out iMajor, out iMinor, out iBuild, out iRevision);
                         }
 
                         return;
@@ -174,8 +186,9 @@ namespace TransferManagerExtended // Cannot be shared with TMCE
                 }
                 else
                 {
-                    CDebug.Log($"No settings found for {TransferManagerExtendedMod.Instance.ModName}");
+                    Log.Info($"No settings found for {TransferManagerMod.Instance.ModName}");
 
+#if TRANSFER_MANAGER_EXTENDED
                     // --------------------------------------------------------
                     // Try Transfer Manager CE settings import
                     SaveGameFileVersion = LoadTransferManagerVersionInfo(TransferManagerCEIds[0], TransferManagerCEDataID, out iMajor, out iMinor, out iBuild, out iRevision);
@@ -190,7 +203,7 @@ namespace TransferManagerExtended // Cannot be shared with TMCE
                         }
                         else if (SaveGameFileVersion >= 55)
                         {
-                            LoadTransferManagerMultipleDataTuple(SaveGameFileVersion, TransferManagerExtendedIds);
+                            LoadTransferManagerMultipleDataTuple(SaveGameFileVersion, TransferManagerCEIds);
                         }
                         else
                         {
@@ -198,9 +211,10 @@ namespace TransferManagerExtended // Cannot be shared with TMCE
                         }
 
                         string sMessage = $"Settings imported from Transfer Manager CE v{iMajor}.{iMinor}.{iBuild}.{iRevision}.\r\n";
-                        Prompt.Info(TransferManagerExtendedMod.Instance.Name, sMessage);
+                        Prompt.Info(TransferManagerMod.Instance.Name, sMessage);
                         return;
                     }
+#endif
                 }
             }
             catch (Exception ex)
@@ -208,7 +222,7 @@ namespace TransferManagerExtended // Cannot be shared with TMCE
                 string sErrorMessage = "Loading of Transfer Manager save game settings failed with the following error:\r\n";
                 sErrorMessage += "\r\n";
                 sErrorMessage += ex.Message;
-                Prompt.ErrorFormat(TransferManagerExtendedMod.Instance.Name, sErrorMessage);
+                Prompt.ErrorFormat(TransferManagerMod.Instance.Name, sErrorMessage);
             }
         }
 
@@ -348,6 +362,35 @@ namespace TransferManagerExtended // Cannot be shared with TMCE
         public void OnReleased()
         {
             TransferManagerSerializer.instance = (TransferManagerSerializer) null;
+        }
+
+        // --------------------------------------------------------------------
+        public bool CheckTransferManagerExtendedDataExists()
+        {
+            // Check if TME has been run on this save game
+            if (m_serializableData is not null)
+            {
+                bool tmeDataExists = false;
+
+                string[] dataIds = m_serializableData.EnumerateData();
+                foreach (string dataId in dataIds)
+                {
+                    if (dataId.Contains(TransferManagerExtendedDataID))
+                    {
+                        tmeDataExists = true;
+                        break;
+                    }
+                }
+
+                if (tmeDataExists)
+                {
+                    Log.Info($"Transfer Manager Extended data detected.");
+                }
+
+                return tmeDataExists;
+            }
+
+            return false;
         }
     }
 }

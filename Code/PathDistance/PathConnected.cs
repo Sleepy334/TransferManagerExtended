@@ -116,7 +116,7 @@ namespace TransferManagerCore
                             // Check the colors match
                             if (iColor != m_nodes.GetColor(nodeId))
                             {
-                                CDebug.Log($"ERROR: Found node {nodeId} with different color: {iColor} NodeColor: {m_nodes.GetColor(nodeId)}");
+                                Log.Info($"ERROR: Found node {nodeId} with different color: {iColor} NodeColor: {m_nodes.GetColor(nodeId)}");
                             }
                         } 
                         else if (nodeLink.TryGetNodeLinks(nodeId, out links))

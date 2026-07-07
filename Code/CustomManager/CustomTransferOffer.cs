@@ -39,6 +39,7 @@ namespace TransferManagerCore.CustomManager
         private bool? m_bExportAllowed = null;
         private bool? m_bImportAllowed = null;
         private HashSet<ushort>? m_excludedOutsideConnections = null;
+        private bool? m_bVehicleImporting = null;
 
         // Warehouse settings
         private bool? m_bIsWarehouse = null;
@@ -78,7 +79,7 @@ namespace TransferManagerCore.CustomManager
 #if DEBUG
             if (m_offerBuildingId is not null)
             {
-                CDebug.LogError("Cached values not reset");
+                Log.Error("Cached values not reset");
             }
 #endif
         }
@@ -100,6 +101,7 @@ namespace TransferManagerCore.CustomManager
             m_bExportAllowed = null;
             m_bImportAllowed = null;
             m_excludedOutsideConnections = null;
+            m_bVehicleImporting = null;
 
             // Warehouse settings
             m_bIsWarehouse = null;
@@ -271,6 +273,34 @@ namespace TransferManagerCore.CustomManager
         }
 
         // -------------------------------------------------------------------------------------------
+        public bool IsVehicleImporting()
+        {
+            if (m_bVehicleImporting is null)
+            {
+                if (Vehicle != 0)
+                {
+                    Vehicle vehicle = VehicleManager.instance.m_vehicles.m_buffer[Vehicle];
+                    if (vehicle.m_flags != 0)
+                    {
+                        // We only claim Importing when Exporting not also set
+                        m_bVehicleImporting = (vehicle.m_flags & global::Vehicle.Flags.Importing) != 0 && (vehicle.m_flags & global::Vehicle.Flags.Exporting) == 0;
+                    }
+                    else
+                    {
+                        m_bVehicleImporting = false;
+                    }
+                }
+                else
+                {
+                    m_bVehicleImporting = false;
+                }
+            }
+
+            return m_bVehicleImporting.Value;
+        }
+        
+
+        // -------------------------------------------------------------------------------------------
         public bool IsWarehouse()
         {
             if (m_bIsWarehouse is null)
@@ -397,7 +427,15 @@ namespace TransferManagerCore.CustomManager
                             Vehicle vehicle = Singleton<VehicleManager>.instance.m_vehicles.m_buffer[Vehicle];
                             if (vehicle.m_flags != 0)
                             {
-                                m_offerBuildingId = vehicle.m_sourceBuilding;
+                                if (vehicle.m_sourceBuilding != 0)
+                                {
+                                    m_offerBuildingId = vehicle.m_sourceBuilding;
+                                }
+                                else if (vehicle.m_cargoParent != 0)
+                                {
+                                    Vehicle cargoParent = Singleton<VehicleManager>.instance.m_vehicles.m_buffer[vehicle.m_cargoParent];
+                                    m_offerBuildingId = cargoParent.m_sourceBuilding;
+                                }
                             }
                             break;
                         }
@@ -570,7 +608,7 @@ namespace TransferManagerCore.CustomManager
                     case InstanceType.Vehicle:
                         {
                             Vehicle vehicle = Singleton<VehicleManager>.instance.m_vehicles.m_buffer[m_object.Vehicle];                     
-                            m_bIsValid = vehicle.m_flags != 0 && vehicle.m_sourceBuilding != 0;
+                            m_bIsValid = vehicle.m_flags != 0 && (vehicle.m_sourceBuilding != 0 || vehicle.m_cargoParent != 0);
                             if (!m_bIsValid.Value)
                             {
                                 TransferManagerStats.s_iInvalidVehicleObjects++;

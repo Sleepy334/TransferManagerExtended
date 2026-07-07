@@ -1,6 +1,8 @@
 using SleepyCommon;
 using System;
 using System.Collections.Generic;
+using UnityEngine;
+using static ColossalFramework.Globalization.Locale;
 
 namespace TransferManagerCore.Common
 {
@@ -169,7 +171,7 @@ namespace TransferManagerCore.Common
             }
             else
             {
-                CDebug.LogError("Key not found.");
+                Log.Error("Key not found.");
             }
         }
 

@@ -1,8 +1,8 @@
-using SleepyCommon;
 using System;
 using System.Collections.Generic;
+using SleepyCommon;
 using TransferManagerCore.CustomManager;
-
+using TransferManagerCore;
 using static TransferManager;
 
 namespace TransferManagerCore
@@ -15,11 +15,8 @@ namespace TransferManagerCore
             ConnectedLineOfSight = 1,
             PathDistance = 2
         }
-        const int iSAVE_GAME_SETTINGS_DATA_VERSION = 39;
+        const int iSAVE_GAME_SETTINGS_DATA_VERSION = 40;
         public static SaveGameSettings s_SaveGameSettings = new SaveGameSettings();
-
-        // Settings
-        public bool EnableNewTransferManager = true;
 
         // General tab
         public int PathDistanceServices = (int) PathDistanceAlgorithm.PathDistance;
@@ -56,6 +53,7 @@ namespace TransferManagerCore
         public int OutsideRoadCitizenPriority = 100;
 
         public int ExportVehicleLimit = 100; // OFF by default
+        public bool Autofill = true;
 
         // Services
         public bool PreferLocalService = false;
@@ -178,7 +176,7 @@ namespace TransferManagerCore
         {
             StorageData.WriteInt32(iSAVE_GAME_SETTINGS_DATA_VERSION, Data); 
             
-            StorageData.WriteBool(EnableNewTransferManager, Data);
+            StorageData.WriteBool(true, Data); // Enable transfer manager no longer used
 
             // General
             StorageData.WriteInt32((int)BalancedMatchMode, Data);
@@ -254,6 +252,7 @@ namespace TransferManagerCore
             StorageData.WriteBool(PoliceToughOnCrime, Data); // Version 36
             StorageData.WriteBool(WarehouseSmartImportExport, Data); // Version 37
             StorageData.WriteBool(ImprovedCargoWarehouseMatching, Data); // Version 39
+            StorageData.WriteBool(Autofill, Data); // Version 40
         }
 
         public static void LoadData(int iGlobalVersion, byte[] Data, ref int iIndex)
@@ -261,28 +260,57 @@ namespace TransferManagerCore
             // Clear previous settings if any
             SetSettings(new SaveGameSettings());
 
-            int iSaveGameSettingVersion = StorageData.ReadInt32(Data, ref iIndex);
-#if DEBUG
-            CDebug.Log("Global: " + iGlobalVersion + " SaveGameVersion: " + iSaveGameSettingVersion + " DataLength: " + Data.Length + " Index: " + iIndex);
-#endif
-            if (s_SaveGameSettings is not null)
+            // Load settings from file
+            if (iGlobalVersion >= 6 && Data is not null && Data.Length > iIndex)
             {
-                s_SaveGameSettings.LoadDataInternal(iSaveGameSettingVersion, Data, ref iIndex);
-
+                int iSaveGameSettingVersion = StorageData.ReadInt32(Data, ref iIndex);
 #if DEBUG
-                CDebug.Log("Settings:\r\n" + s_SaveGameSettings.DebugSettings());
+                Log.Info("Global: " + iGlobalVersion + " SaveGameVersion: " + iSaveGameSettingVersion + " DataLength: " + Data.Length + " Index: " + iIndex);
 #endif
+                if (s_SaveGameSettings is not null)
+                {
+                    s_SaveGameSettings.LoadDataInternal(iSaveGameSettingVersion, Data, ref iIndex);
+#if DEBUG
+                    Log.Info("Settings:\r\n" + s_SaveGameSettings.DebugSettings());
+#endif
+                }
             }
         }
 
         private void LoadDataInternal(int iDataVersion, byte[] Data, ref int iIndex)
         {
-            LoadDataCurrentVersion(iDataVersion, Data, ref iIndex);
+            if (iDataVersion < 16)
+            {
+                // Load old versions
+                switch (iDataVersion)
+                {
+                    case 1: LoadDataVersion1(Data, ref iIndex); break;
+                    case 2: LoadDataVersion2(Data, ref iIndex); break;
+                    case 3: LoadDataVersion3(Data, ref iIndex); break;
+                    case 4: LoadDataVersion4(Data, ref iIndex); break;
+                    case 5: LoadDataVersion5(Data, ref iIndex); break;
+                    case 6: LoadDataVersion6(Data, ref iIndex); break;
+                    case 7: LoadDataVersion7(Data, ref iIndex); break;
+                    case 8: LoadDataVersion8(Data, ref iIndex); break;
+                    case 9: LoadDataVersion9(Data, ref iIndex); break;
+                    case 10: LoadDataVersion10(Data, ref iIndex); break;
+                    case 11: LoadDataVersion11(Data, ref iIndex); break;
+                    case 12: LoadDataVersion12(Data, ref iIndex); break;
+                    case 13: LoadDataVersion13(Data, ref iIndex); break;
+                    case 14: LoadDataVersion14(Data, ref iIndex); break;
+                    case 15: LoadDataVersion15(Data, ref iIndex); break;
+                }
+            }
+            else
+            {
+                // Load current save data
+                LoadDataCurrentVersion(iDataVersion, Data, ref iIndex);
+            }
         }
 
         private void LoadDataCurrentVersion(int iDataVersion, byte[] Data, ref int iIndex)
         {
-            EnableNewTransferManager = StorageData.ReadBool(Data, ref iIndex);
+            bool bEnableNewTransferManagerNotUsed = StorageData.ReadBool(Data, ref iIndex);
 
             // General
             BalancedMatchMode = (CustomTransferManager.BalancedMatchModeOption)StorageData.ReadInt32(Data, ref iIndex);
@@ -460,6 +488,10 @@ namespace TransferManagerCore
             {
                 ImprovedCargoWarehouseMatching = StorageData.ReadBool(Data, ref iIndex);
             }
+            if (iDataVersion >= 40)
+            {
+                Autofill = StorageData.ReadBool(Data, ref iIndex);
+            }
         }
 
         private void LoadDataVersion15(byte[] Data, ref int iIndex)
@@ -526,7 +558,7 @@ namespace TransferManagerCore
 
         private void LoadDataVersion7(byte[] Data, ref int iIndex)
         {
-            EnableNewTransferManager = StorageData.ReadBool(Data, ref iIndex);
+            bool bEnableNewTransferManagerNotUsed = StorageData.ReadBool(Data, ref iIndex);
             PreferLocalService = StorageData.ReadBool(Data, ref iIndex);
 
             // Outside connection multipliers are no longer used
@@ -555,7 +587,7 @@ namespace TransferManagerCore
 
         private void LoadDataVersion6(byte[] Data, ref int iIndex)
         {
-            EnableNewTransferManager = StorageData.ReadBool(Data, ref iIndex);
+            bool bEnableNewTransferManagerNotUsed = StorageData.ReadBool(Data, ref iIndex);
             PreferLocalService = StorageData.ReadBool(Data, ref iIndex);
             bool PreferExportShip = StorageData.ReadBool(Data, ref iIndex);
             bool PreferExportPlane = StorageData.ReadBool(Data, ref iIndex);
@@ -596,7 +628,7 @@ namespace TransferManagerCore
 
         private void LoadDataVersion3(byte[] Data, ref int iIndex)
         {
-            EnableNewTransferManager = StorageData.ReadBool(Data, ref iIndex);
+            bool bEnableNewTransferManagerNotUsed = StorageData.ReadBool(Data, ref iIndex);
             PreferLocalService = StorageData.ReadBool(Data, ref iIndex);
             bool PreferExportShip = StorageData.ReadBool(Data, ref iIndex);
             bool PreferExportPlane = StorageData.ReadBool(Data, ref iIndex);
@@ -620,7 +652,7 @@ namespace TransferManagerCore
 
         private void LoadDataVersion2(byte[] Data, ref int iIndex)
         {
-            EnableNewTransferManager = StorageData.ReadBool(Data, ref iIndex);
+            bool bEnableNewTransferManagerNotUsed = StorageData.ReadBool(Data, ref iIndex);
             PreferLocalService = StorageData.ReadBool(Data, ref iIndex);
             bool PreferExportShip = StorageData.ReadBool(Data, ref iIndex);
             bool PreferExportPlane = StorageData.ReadBool(Data, ref iIndex);
@@ -635,7 +667,7 @@ namespace TransferManagerCore
 
         private void LoadDataVersion1(byte[] Data, ref int iIndex)
         {
-            EnableNewTransferManager = StorageData.ReadBool(Data, ref iIndex);
+            bool bEnableNewTransferManagerNotUsed = StorageData.ReadBool(Data, ref iIndex);
             PreferLocalService = StorageData.ReadBool(Data, ref iIndex);
             bool PreferExportShip = StorageData.ReadBool(Data, ref iIndex);
             bool PreferExportPlane = StorageData.ReadBool(Data, ref iIndex);
@@ -695,38 +727,37 @@ namespace TransferManagerCore
 
         public string DebugSettings()
         {
-            string sMessage = "===== Save Game Settings =====";
-            sMessage += "\r\nEnableNewTransferManager: " + EnableNewTransferManager;
+            string sMessage = "===== Save Game Settings =====\r\n";
 
             // Warehouse
-            sMessage += "\r\nWarehouseFirst: " + WarehouseFirst;
-            sMessage += "\r\nWarehouseReserveTrucks: " + WarehouseReserveTrucksPercent;
-
+            sMessage += "WarehouseFirst: " + WarehouseFirst + "\r\n";
+            sMessage += "WarehouseReserveTrucks: " + WarehouseReserveTrucksPercent + "\r\n";
+            
             // Import / Export
-            sMessage += "\r\nShipCargoPriority: " + OutsideShipCargoPriority;
-            sMessage += "\r\nPlaneCargoPriority: " + OutsidePlaneCargoPriority;
-            sMessage += "\r\nTrainCargoPriority: " + OutsideTrainCargoPriority;
-            sMessage += "\r\nRoadCargoPriority: " + OutsideRoadCargoPriority;
+            sMessage += "ShipCargoPriority: " + OutsideShipCargoPriority + "\r\n";
+            sMessage += "PlaneCargoPriority: " + OutsidePlaneCargoPriority + "\r\n";
+            sMessage += "TrainCargoPriority: " + OutsideTrainCargoPriority + "\r\n";
+            sMessage += "RoadCargoPriority: " + OutsideRoadCargoPriority + "\r\n";
 
-            sMessage += "\r\nShipCitizenPriority: " + OutsideShipCitizenPriority;
-            sMessage += "\r\nPlaneCitizenPriority: " + OutsidePlaneCitizenPriority;
-            sMessage += "\r\nTrainCitizenPriority: " + OutsideTrainCitizenPriority;
-            sMessage += "\r\nRoadCitizenPriority: " + OutsideRoadCitizenPriority;
+            sMessage += "ShipCitizenPriority: " + OutsideShipCitizenPriority + "\r\n";
+            sMessage += "PlaneCitizenPriority: " + OutsidePlaneCitizenPriority + "\r\n";
+            sMessage += "TrainCitizenPriority: " + OutsideTrainCitizenPriority + "\r\n";
+            sMessage += "RoadCitizenPriority: " + OutsideRoadCitizenPriority + "\r\n";
 
-            sMessage += "\r\nExportVehicleLimit: " + ExportVehicleLimit;
+            sMessage += "ExportVehicleLimit: " + ExportVehicleLimit + "\r\n";
 
             // Services
-            sMessage += "\r\nPreferLocalService: " + PreferLocalService;
-            sMessage += "\r\nImprovedDeathcareMatching: " + ImprovedDeathcareMatching;
-            sMessage += "\r\nImprovedGarbageMatching: " + ImprovedGarbageMatching;
-            sMessage += "\r\nImprovedCrimeMatching: " + ImprovedCrimeMatching;
+            sMessage += "PreferLocalService: " + PreferLocalService + "\r\n";
+            sMessage += "ImprovedDeathcareMatching: " + ImprovedDeathcareMatching + "\r\n";
+            sMessage += "ImprovedGarbageMatching: " + ImprovedGarbageMatching + "\r\n";
+            sMessage += "ImprovedCrimeMatching: " + ImprovedCrimeMatching + "\r\n";
 
             if (m_ActiveDistanceRestrictions is not null)
             {
                 sMessage += "\r\nDistanceRestrictionCount: " + m_ActiveDistanceRestrictions.Count;
                 foreach (KeyValuePair<CustomTransferReason.Reason, int> kvp in m_ActiveDistanceRestrictions)
                 {
-                    sMessage += $"\r\nKey: {kvp.Key} Value: {kvp.Value}  ({Math.Sqrt(kvp.Value) * 0.001})";
+                    sMessage += "\r\nKey: " + kvp.Key + " Value: " + kvp.Value + " (" + Math.Sqrt(kvp.Value) * 0.001 + ")";
                 }
             }
 

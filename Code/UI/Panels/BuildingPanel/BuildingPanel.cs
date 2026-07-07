@@ -132,7 +132,7 @@ namespace TransferManagerCore.UI
             name = "BuildingPanel";
             width = 820;
             height = 680;
-            backgroundSprite = "SubcategoriesPanel";
+            backgroundSprite = "MenuPanel";
             if (ModSettings.GetSettings().EnablePanelTransparency)
             {
                 opacity = 0.95f;
@@ -164,7 +164,7 @@ namespace TransferManagerCore.UI
             };
 
             // Title Bar
-            m_title = UITitleBar.Create(this, TransferManagerExtendedMod.Instance.Name, "Transfer", TransferManagerExtendedMod.Instance.LoadResources(), OnTitleCloseClick);
+            m_title = UITitleBar.Create(this, TransferManagerMod.Instance.Name, "Transfer", TransferManagerMod.Instance.LoadResources(), OnTitleCloseClick);
             if (m_title != null)
             {
                 m_title.AddButton("btnStats", atlas, "ThumbStatistics", "Show Statistics Panel", OnStatsClick);
@@ -381,7 +381,7 @@ namespace TransferManagerCore.UI
                 {
                     m_eBuildingType = BuildingTypeHelper.GetBuildingType(buildingId);
 #if DEBUG
-                    CDebug.Log($"Building: {buildingId} Building type: {m_eBuildingType}");
+                    Log.Info($"Building: {buildingId} Building type: {m_eBuildingType}");
 #endif
                     // Update sub buildings (if any)
                     BuildingUtils.GetBuildingSubBuildings(buildingId, m_subBuildingIds);
@@ -763,6 +763,84 @@ namespace TransferManagerCore.UI
             if (OutsideConnectionSelectionPanel.IsVisible())
             {
                 OutsideConnectionSelectionPanel.Instance.Hide();
+            }
+        }
+
+        public void SelectNextBuilding()
+        {
+            Building[] buildings = BuildingManager.instance.m_buildings.m_buffer;
+
+            ushort buildingId = Building;
+            if (buildingId != 0)
+            {
+                BuildingTypeHelper.BuildingType eCurrentType = BuildingTypeHelper.GetBuildingType(buildingId);
+
+                for (int i = buildingId + 1; i < buildings.Length; ++i)
+                {
+                    Building building = buildings[(ushort)i];
+                    if (building.m_flags != 0)
+                    {
+                        BuildingTypeHelper.BuildingType eType = BuildingTypeHelper.GetBuildingType((ushort)i);
+                        if (eType == eCurrentType)
+                        {
+                            Building = (ushort)i;
+                            return;
+                        }
+                    }
+                }
+
+                for (int i = 0; i < buildingId; ++i)
+                {
+                    Building building = buildings[(ushort)i];
+                    if (building.m_flags != 0)
+                    {
+                        BuildingTypeHelper.BuildingType eType = BuildingTypeHelper.GetBuildingType((ushort)i);
+                        if (eType == eCurrentType)
+                        {
+                            Building = (ushort)i;
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+
+        public void SelectPrevBuilding()
+        {
+            Building[] buildings = BuildingManager.instance.m_buildings.m_buffer;
+
+            ushort buildingId = Building;
+            if (buildingId != 0)
+            {
+                BuildingTypeHelper.BuildingType eCurrentType = BuildingTypeHelper.GetBuildingType(buildingId);
+
+                for (int i = buildingId - 1; i > 0; --i)
+                {
+                    Building building = buildings[(ushort)i];
+                    if (building.m_flags != 0)
+                    {
+                        BuildingTypeHelper.BuildingType eType = BuildingTypeHelper.GetBuildingType((ushort)i);
+                        if (eType == eCurrentType)
+                        {
+                            Building = (ushort)i;
+                            return;
+                        }
+                    }
+                }
+
+                for (int i = buildings.Length - 1; i > buildingId; --i)
+                {
+                    Building building = buildings[(ushort)i];
+                    if (building.m_flags != 0)
+                    {
+                        BuildingTypeHelper.BuildingType eType = BuildingTypeHelper.GetBuildingType((ushort)i);
+                        if (eType == eCurrentType)
+                        {
+                            Building = (ushort)i;
+                            return;
+                        }
+                    }
+                }
             }
         }
     }

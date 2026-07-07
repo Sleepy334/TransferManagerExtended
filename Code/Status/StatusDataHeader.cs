@@ -31,27 +31,12 @@ namespace TransferManagerCore.Data
             return false;
         }
 
-        public override bool HasVehicle()
+        public override bool IsVehicleData()
         {
             return false;
         }
 
-        public override ushort GetVehicleId()
-        {
-            return 0;
-        }
-
-        public override ushort GetResponderId()
-        {
-            return 0;
-        }
-
         public override string GetMaterialDisplay()
-        {
-            return m_heading;
-        }
-
-        public override string GetMaterialDescription()
         {
             return m_heading;
         }
@@ -68,13 +53,13 @@ namespace TransferManagerCore.Data
             return "";
         }
 
-        protected override string CalculateVehicle(out string tooltip)
+        protected override string CalculateDescription1(out string tooltip)
         {
             tooltip = "";
             return "";
         }
 
-        protected override string CalculateResponder(out string tooltip)
+        protected override string CalculateDescription2(out string tooltip)
         {
             tooltip = ""; 
             return "";
@@ -83,14 +68,6 @@ namespace TransferManagerCore.Data
         protected override double CalculateDistance()
         {
             return double.MaxValue;
-        }
-
-        public override void OnClickResponder()
-        {
-        }
-
-        public override void OnClickTarget()
-        {
         }
 
         public override Color GetTextColor()

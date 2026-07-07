@@ -85,7 +85,7 @@ namespace TransferManagerCore
 
         public static void AddSelectionTool()
         {
-            if (TransferManagerExtendedMod.Instance.IsLoaded && !s_bLoadingTool)
+            if (TransferManagerMod.Instance.IsLoaded && !s_bLoadingTool)
             {
                 if (m_instance is null)
                 {
@@ -96,7 +96,7 @@ namespace TransferManagerCore
                     }
                     catch (Exception e)
                     {
-                        CDebug.Log("Selection tool failed to load: ", e);
+                        Log.Error("Selection tool failed to load: ", e);
                     }
                     finally
                     {

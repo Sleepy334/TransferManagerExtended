@@ -5,8 +5,8 @@ namespace TransferManagerCore.Data
 {
     public class StatusDataVehicleMail : StatusDataVehicle
     {
-        public StatusDataVehicleMail(CustomTransferReason.Reason reason, BuildingType eBuildingType, ushort BuildingId, ushort responder, ushort target) :
-            base(reason, eBuildingType, BuildingId, responder, target)
+        public StatusDataVehicleMail(CustomTransferReason.Reason reason, BuildingType eBuildingType, ushort BuildingId, ushort vehicleId, ushort sourceBuildingId, InstanceID target) :
+            base(reason, eBuildingType, BuildingId, vehicleId, sourceBuildingId, target)
         {
         }
 

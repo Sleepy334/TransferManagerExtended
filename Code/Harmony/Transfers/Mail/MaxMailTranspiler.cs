@@ -111,7 +111,7 @@ namespace TransferManagerCore
                 yield return instruction;
             }
 
-            CDebug.Log($"Patching of {functionName} {(bPatched ? "succeeded" : "failed")}.", false);
+            Log.Info($"Patching of {functionName} {(bPatched ? "succeeded" : "failed")}.");
         }
 
         // ----------------------------------------------------------------------------------------

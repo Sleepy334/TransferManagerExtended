@@ -5,6 +5,7 @@ using ColossalFramework;
 namespace TransferManagerCore
 {
     [HarmonyPatch]
+
     public class FirewatchTowerPatch
     {
         const int iEmergencyFireAmount = 10;

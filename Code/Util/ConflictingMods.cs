@@ -11,16 +11,15 @@ namespace TransferManagerCore
             string sConflictingMods = "";
             int iTransferManagerCount = 0;
 
+            Log.Info("Checking for conflicting mods");
+
             foreach (PluginManager.PluginInfo plugin in PluginManager.instance.GetPluginsInfo())
             {
                 if (plugin is not null && plugin.isEnabled)
                 {
                     foreach (Assembly assembly in plugin.GetAssemblies())
                     {
-
-#if DEBUG
-                        CDebug.Log($"Checking Mod: {assembly.GetName().Name}");
-#endif
+                        //Log.Info($"\r\n{assembly.GetName().Name}");
 
                         switch (assembly.GetName().Name)
                         {
@@ -49,6 +48,12 @@ namespace TransferManagerCore
                                     sConflictingMods += "Taxi Stand Fix\r\n";
                                     break;
                                 }
+                            case "OneModFix":
+                                {
+                                    sConflictingMods += "One Mod Fix\r\n";
+                                    break;
+                                }
+#if TRANSFER_MANAGER_EXTENDED
                             case "TransferManagerCE":
                                 {
                                     sConflictingMods += "Transfer Manager CE\r\n";
@@ -59,7 +64,7 @@ namespace TransferManagerCore
                                     sConflictingMods += "More Transfer Reasons\r\n";
                                     break;
                                 }
-                            case "TransferManagerExtendeed":
+                            case "TransferManagerExtended":
                                 {
                                     iTransferManagerCount++;
                                     if (iTransferManagerCount > 1)
@@ -69,10 +74,31 @@ namespace TransferManagerCore
 
                                     break;
                                 }
-                               
+#else
+                            case "PrisonHelicopter":
+                                {
+                                    sConflictingMods += "Prison Helicopter Mod\r\n";
+                                    break;
+                                }
+                            case "TransferManagerExtended":
+                                {
+                                    sConflictingMods += "Transfer Manager Extended\r\n";
+                                    break;
+                                }
+                            case "TransferManagerCE":
+                                {
+                                    iTransferManagerCount++;
+                                    if (iTransferManagerCount > 1)
+                                    {
+                                        sConflictingMods += "Multiple Transfer Manager CE mods running\r\n";
+                                    }
+
+                                    break;
+                                }
+#endif
                             default:
                                 {
-                                    //CDebug.Log("Assembly: " + assembly.GetName().Name);
+                                    //Log.Info("Assembly: " + assembly.GetName().Name);
                                     break;
                                 }
                         }
@@ -97,7 +123,7 @@ namespace TransferManagerCore
                 sMessage += sConflictingMods;
                 sMessage += "\r\n";
                 sMessage += "Mod disabled until conflicts resolved, please remove these mods.";
-                Prompt.WarningFormat(TransferManagerExtendedMod.Instance.Name, sMessage);
+                Prompt.WarningFormat(TransferManagerMod.Instance.Name, sMessage);
                 return true;
             }
         }

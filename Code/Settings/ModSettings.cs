@@ -1,7 +1,11 @@
-﻿using SleepyCommon;
+﻿using ColossalFramework;
+using ColossalFramework.UI;
+using ICities;
+using SleepyCommon;
 using System;
 using System.IO;
 using System.Xml.Serialization;
+using UnifiedUI.Helpers;
 using UnityEngine;
 using static TransferManager;
 
@@ -46,9 +50,13 @@ namespace TransferManagerCore.Settings
             }
             return s_settings;
         }
-
+#if TRANSFER_MANAGER_EXTENDED
         [XmlIgnore]
         private static readonly string SettingsFileName = "TransferManagerExtendedSettings.xml";
+#else
+        [XmlIgnore]
+        private static readonly string SettingsFileName = "TransferManagerCESettings.xml";
+#endif
 
         [XmlIgnore]
         public static readonly string UserSettingsDir = ColossalFramework.IO.DataLocation.localApplicationData;
@@ -128,13 +136,7 @@ namespace TransferManagerCore.Settings
 
 
         // =========================== Advanced Tab Settings ======================================
-        public int ForceTrainSpawnAtCount { get; set; } = 240;
-
-        public int ForceShipSpawnAtCount { get; set; } = 100;
-
-        public int ForcePlaneSpawnAtCount { get; set; } = 200;
-
-        public int ForceBusSpawnAtCount { get; set; } = 60;
+        public bool ForceIntercityStopSpawnAtMaxCount { get; set; } = true;
 
         public bool ForceCargoShipSpawn { get; set; } = true;
 
@@ -185,6 +187,7 @@ namespace TransferManagerCore.Settings
         public bool GarbageTruckAI { get; set; } = true;
         public bool PoliceCarAI { get; set; } = true;
         public bool PoliceCopterAI { get; set; } = true;
+        public bool CargoTruckAI { get; set; } = true;
 
         // =========================== Hot keys ===================================================
         [XmlIgnore]
@@ -192,10 +195,23 @@ namespace TransferManagerCore.Settings
             "TransferIssueHotkey",
             key: KeyCode.Alpha3, bCtrl: true, bShift: false, bAlt: false);
 
+        // Building panel
         [XmlIgnore]
         public UnsavedKeyMapping SelectionToolHotkey = new UnsavedKeyMapping(
             "SelectionToolHotkey",
             key: KeyCode.Alpha4, bCtrl: true, bShift: false, bAlt: false);
+
+        // Building panel next
+        [XmlIgnore]
+        public UnsavedKeyMapping BuildingPanelNext = new UnsavedKeyMapping(
+           "BuildingPanelNext",
+           key: KeyCode.RightArrow, bCtrl: false, bShift: false, bAlt: false);
+
+        // Building panel prev
+        [XmlIgnore]
+        public UnsavedKeyMapping BuildingPanelPrev = new UnsavedKeyMapping(
+           "BuildingPanelPrev",
+           key: KeyCode.LeftArrow, bCtrl: false, bShift: false, bAlt: false);
 
         [XmlIgnore]
         public UnsavedKeyMapping StatsPanelHotkey = new UnsavedKeyMapping(
@@ -227,6 +243,32 @@ namespace TransferManagerCore.Settings
                 SelectionToolHotkey.Control = value.Control;
                 SelectionToolHotkey.Shift = value.Shift;
                 SelectionToolHotkey.Alt = value.Alt;
+            }
+        }
+
+        [XmlElement("BuildingPanelNext")]
+        public XmlInputKey XMLBuildingPanelNext
+        {
+            get => BuildingPanelNext.XmlKey;
+            set
+            {
+                BuildingPanelNext.Key = value.Key;
+                BuildingPanelNext.Control = value.Control;
+                BuildingPanelNext.Shift = value.Shift;
+                BuildingPanelNext.Alt = value.Alt;
+            }
+        }
+
+        [XmlElement("BuildingPanelPrev")]
+        public XmlInputKey XMLBuildingPanelPrev
+        {
+            get => BuildingPanelPrev.XmlKey;
+            set
+            {
+                BuildingPanelPrev.Key = value.Key;
+                BuildingPanelPrev.Control = value.Control;
+                BuildingPanelPrev.Shift = value.Shift;
+                BuildingPanelPrev.Alt = value.Alt;
             }
         }
 
@@ -297,7 +339,7 @@ namespace TransferManagerCore.Settings
 
         public static ModSettings Load()
         {
-            CDebug.Log("Loading settings: " + SettingsFile); 
+            Log.Info("Loading settings: " + SettingsFile); 
             try
             {
                 // Read settings file.
@@ -316,7 +358,7 @@ namespace TransferManagerCore.Settings
             }
             catch (Exception e)
             {
-                CDebug.Log("Error loading settings:", e);
+                Log.Error("Error loading settings:", e);
             }
 
             return new ModSettings();
@@ -338,7 +380,7 @@ namespace TransferManagerCore.Settings
             }
             catch (Exception ex)
             {
-                CDebug.Log("Saving settings file failed.", ex); 
+                Log.Error("Saving settings file failed.", ex);
             }
         }
     }

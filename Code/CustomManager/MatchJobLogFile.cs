@@ -21,14 +21,7 @@ namespace TransferManagerCore.CustomManager
             Error,
         }
 
-        public static string LogFileFolder
-        {
-            get
-            {
-                return Path.Combine(UserSettingsDir, "TransferManagerExtended");
-            }
-        }
-
+        // -------------------------------------------------------------------------------------------
         private CustomTransferReason.Reason m_material;
         private LogCandidates m_candidateLogging = LogCandidates.All;
         Dictionary<ExclusionReason, int> m_candidateReasons = new Dictionary<ExclusionReason, int>();
@@ -43,6 +36,20 @@ namespace TransferManagerCore.CustomManager
         private static readonly object LogLock = new object();
         private static string s_path = "";
         private static int s_iLogFileNumber = 1;
+
+        // -------------------------------------------------------------------------------------------
+        public static string LogFileFolder
+        {
+            get
+            {
+#if TRANSFER_MANAGER_EXTENDED
+                return Path.Combine(UserSettingsDir, "TransferManagerExtended");
+#else
+                return Path.Combine(UserSettingsDir, "TransferManagerCE");
+#endif
+
+            }
+        }
 
         // -------------------------------------------------------------------------------------------
         public MatchJobLogFile(CustomTransferReason.Reason material)

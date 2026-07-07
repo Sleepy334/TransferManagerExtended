@@ -1,6 +1,7 @@
 using SleepyCommon;
 using System;
 using System.Collections.Generic;
+using TransferManagerCore;
 
 namespace TransferManagerCore
 {

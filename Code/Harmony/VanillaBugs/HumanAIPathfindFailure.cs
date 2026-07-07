@@ -55,7 +55,7 @@ namespace TransferManagerCore
                     // We have had a path fail on a citizen trying to move into the city. remove it now
                     Singleton<CitizenManager>.instance.ReleaseCitizen(s_citizenId);
 #if DEBUG
-                    //CDebug.Log($"Removing citizen:{s_citizenId} - MovingIn flag still set");
+                    //Log.Info($"Removing citizen:{s_citizenId} - MovingIn flag still set");
 #endif
                 }
             }

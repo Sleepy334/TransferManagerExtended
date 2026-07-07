@@ -336,12 +336,6 @@ namespace TransferManagerCore.UI
 
             try
             {
-                if (!SaveGameSettings.GetSettings().EnableNewTransferManager)
-                {
-                    m_tabStrip.SetTabVisible((int)TabIndex.TAB_SETTINGS, false);
-                    return false;
-                }
-
                 // Load applicable rule sets for this building
                 List<ReasonRule> buildingRules = BuildingRuleSets.GetRules(m_eBuildingType, m_buildingId);
 

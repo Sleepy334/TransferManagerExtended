@@ -1,4 +1,5 @@
-﻿using SleepyCommon;
+﻿using ICities;
+using SleepyCommon;
 using System;
 using System.Collections.Generic;
 using TransferManagerCore.CustomManager;
@@ -135,18 +136,47 @@ namespace TransferManagerCore
             }
 
             //long stopTicks = stopwatch.ElapsedTicks;
-            //CDebug.Log($"{((double)(stopTicks - startTicks) * 0.0001).ToString("F")}ms");
+            //Log.Info($"{((double)(stopTicks - startTicks) * 0.0001).ToString("F")}ms");
         }
 
         private void LoadBuildingMatches(ushort usSourceBuildingId)
         {
             m_highlightBuildings.Clear();
 
-            if ((ModSettings.BuildingHighlightMode)ModSettings.GetSettings().HighlightMatchesState == ModSettings.BuildingHighlightMode.Matches && 
+            if ((ModSettings.BuildingHighlightMode)ModSettings.GetSettings().HighlightMatchesState == ModSettings.BuildingHighlightMode.Matches &&
                 BuildingPanel.Exists)
             {
-                // Limit the number of buildings to highlight
-                const int iMAX_BUILDINGS = 200;
+                // Highlight buildings of same type
+                BuildingTypeHelper.BuildingType buildingType = BuildingTypeHelper.GetBuildingType(usSourceBuildingId);
+                if (BuildingTypeHelper.IsServiceBuilding(buildingType) ||
+                    BuildingTypeHelper.IsEducationBuilding(buildingType) ||
+                    BuildingTypeHelper.IsWarehouse(buildingType))
+                {
+                    Building[] BuildingBuffer = BuildingManager.instance.m_buildings.m_buffer;
+                    Building sourceBuilding = BuildingBuffer[usSourceBuildingId];
+
+                    for (int i = 0; i < BuildingBuffer.Length; i++)
+                    {
+                        // Dont highlight current building
+                        if (i == usSourceBuildingId)
+                        {
+                            continue;
+                        }
+
+                        Building building = BuildingBuffer[i];
+                        if (building.m_flags != 0)
+                        {
+                            if (BuildingTypeHelper.GetBuildingType(building) == buildingType)
+                            {
+                                m_highlightBuildings.Add(new KeyValuePair<ushort, Color>((ushort)i, Color.green));
+                            }
+                        }
+                    }
+                }
+
+
+                // Limit the number of building matches to highlight
+                const int iMAX_BUILDINGS = 256;
 
                 List<BuildingMatchData>? listMatches = BuildingPanel.Instance.GetBuildingMatches().GetSortedBuildingMatches();
                 if (listMatches is not null && listMatches.Count > 0)
@@ -322,7 +352,7 @@ namespace TransferManagerCore
                 Building building = BuildingBuffer[i];
                 if (building.m_flags != 0)
                 {
-                    if (building.Info.GetService() == ItemClass.Service.PoliceDepartment)
+                    if (IsPoliceBuilding(building.Info))
                     {
                         m_highlightBuildings.Add(new KeyValuePair<ushort, Color>((ushort)i, Color.green));
                     }

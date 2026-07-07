@@ -10,7 +10,6 @@ namespace TransferManagerCore
     {
         const int iPATH_UNIT_UPDATE_RATE = 60; // 1 minute
         const int iSETTINGS_CHECK_UPDATE_RATE = 5; // 5 seconds
-        const int iPATH_NODE_CACHE_UPDATE_RATE = 300; // 5 minutes
         const int iPATH_FAILURE_UPDATE_RATE = 30; // 30 seconds
 
         // Path unit warning check
@@ -44,7 +43,7 @@ namespace TransferManagerCore
             }
             catch (Exception e)
             {
-                CDebug.Log("Exception: " + e.Message);
+                Log.Error("Exception: " + e.Message);
             }
         }
 
@@ -72,7 +71,7 @@ namespace TransferManagerCore
             }
             catch (Exception e)
             {
-                CDebug.Log("Exception: " + e.Message);
+                Log.Error("Exception: " + e.Message);
             }
         }
 

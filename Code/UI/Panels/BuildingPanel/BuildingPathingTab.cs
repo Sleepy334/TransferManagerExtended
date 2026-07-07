@@ -1,8 +1,10 @@
 using ColossalFramework.UI;
+using ICities;
 using SleepyCommon;
 using System.Collections.Generic;
 using TransferManagerCore.Util;
 using UnifiedUI.Helpers;
+using static DistrictPolicies;
 using static TransferManagerCore.BuildingTypeHelper;
 using static TransferManagerCore.UI.BuildingPanel;
 
@@ -215,14 +217,32 @@ namespace TransferManagerCore.UI
 
         private void OnReset(UIComponent component, UIMouseEventParameter eventParam)
         {
-            PathFindFailure.ResetPathingStatistics(m_buildingId);
-
-            List<ushort> subBuildings = BuildingPanel.Instance.GetSubBuildingIds();
-            if (subBuildings.Count > 0)
+            if (GetBuildingType(m_buildingId) == BuildingType.ServicePoint)
             {
-                foreach (ushort subBuildingId in subBuildings)
+                PathFindFailure.ResetPathingStatistics(new InstanceID { Building = m_buildingId });
+
+                // Pass in park pedestrian zone id instead as the offers come from that
+                Building building = BuildingManager.instance.m_buildings.m_buffer[m_buildingId];
+                if (building.m_flags != 0)
                 {
-                    PathFindFailure.ResetPathingStatistics(subBuildingId);
+                    byte park = DistrictManager.instance.GetPark(building.m_position);
+                    if (park != 0)
+                    {
+                        PathFindFailure.ResetPathingStatistics(new InstanceID { Park = park });
+                    }
+                }
+            }
+            else
+            {
+                PathFindFailure.ResetPathingStatistics(new InstanceID { Building = m_buildingId });
+
+                List<ushort> subBuildings = BuildingPanel.Instance.GetSubBuildingIds();
+                if (subBuildings.Count > 0)
+                {
+                    foreach (ushort subBuildingId in subBuildings)
+                    {
+                        PathFindFailure.ResetPathingStatistics(new InstanceID { Building = subBuildingId });
+                    }
                 }
             }
 

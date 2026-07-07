@@ -176,7 +176,7 @@ namespace TransferManagerCore
                 } 
                 else
                 {
-                    CDebug.LogError("Data size not large enough aborting read. ArraySize: " + iArrayCount + " DataSize: " + Data.Length + " Index: " + iIndex);
+                    Log.Error("Data size not large enough aborting read. ArraySize: " + iArrayCount + " DataSize: " + Data.Length + " Index: " + iIndex);
                 }
             }
             return list;

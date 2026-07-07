@@ -146,7 +146,7 @@ namespace TransferManagerCore
                 // Safety check in case we get caught in an infinite loop somehow
                 if (iLaneLoopCount++ > NetManager.MAX_LANE_COUNT)
                 {
-                    CDebug.Log("Invalid lane loop detected");
+                    Log.Info("Invalid lane loop detected");
                     break;
                 }
             }

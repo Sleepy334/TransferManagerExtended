@@ -155,10 +155,8 @@ namespace TransferManagerCore.Util
             
         }
 
-        public static void ResetPathingStatistics(ushort buildingId)
+        public static void ResetPathingStatistics(InstanceID instance)
         {
-            InstanceID instance = new InstanceID { Building = buildingId };
-
             if (s_totalPathfindBuildingsCounter is not null)
             {
                 lock (s_pathCounterLock)

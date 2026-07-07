@@ -80,30 +80,5 @@ namespace TransferManagerCore
             }
             return string.Empty;
         }
-
-        public static int GetWarehouseTruckCount(ushort buildingId)
-        {
-            if (buildingId != 0)
-            {
-                Building building = BuildingManager.instance.m_buildings.m_buffer[buildingId];
-                if (building.Info is not null)
-                {
-                    WarehouseAI? warehouse = building.Info.m_buildingAI as WarehouseAI;
-                    if (warehouse is not null)
-                    {
-                        // Factor in budget
-                        int budget = Singleton<EconomyManager>.instance.GetBudget(building.Info.m_class);
-                        int productionRate = PlayerBuildingAI.GetProductionRate(100, budget);
-                        return (productionRate * warehouse.m_truckCount + 99) / 100;
-                    }
-                    else if (building.Info?.m_buildingAI.GetType().ToString() == "CargoFerries.AI.CargoFerryWarehouseHarborAI")
-                    {
-                        return 25; // Just return default number for now
-                    }
-                }
-            }
-
-            return 0;
-        }
     }
 }

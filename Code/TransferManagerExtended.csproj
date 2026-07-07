@@ -15,11 +15,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <Optimize>False</Optimize>
     <NoWarn>1701;1702;8600;8602;8604;8618;8625</NoWarn>
+    <DefineConstants>$(DefineConstants);TRANSFER_MANAGER_EXTENDED</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <Optimize>True</Optimize>
     <NoWarn>1701;1702;8600;8602;8604;8618;8625</NoWarn>
+    <DefineConstants>$(DefineConstants);TRANSFER_MANAGER_EXTENDED</DefineConstants>
   </PropertyGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">

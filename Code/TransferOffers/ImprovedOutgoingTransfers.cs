@@ -5,6 +5,7 @@ using TransferManagerCore.Settings;
 using static TransferManager;
 using static TransferManagerCore.WarehouseUtils;
 using TransferManagerCore.CustomManager;
+using TransferManagerCore.UI;
 
 namespace TransferManagerCore
 {
@@ -92,12 +93,22 @@ namespace TransferManagerCore
             else if (offer.Building != 0 && SaveGameSettings.GetSettings().MainBuildingPostTruck)
             {
                 Building building = BuildingManager.instance.m_buildings.m_buffer[offer.Building];
-                if (building.m_flags != 0 && BuildingTypeHelper.IsMainBuilding(building))
+                if (building.m_flags != 0 && building.Info is not null)
                 {
-                    // We alternate Mail and Mail2 (2/3 Mail2) requests so we can collect mail with post trucks for these building types
-                    if (Singleton<SimulationManager>.instance.m_randomizer.Int32(3u) != 0)
+                    switch (building.Info.GetAI())
                     {
-                        material = (TransferReason)CustomTransferReason.Reason.Mail2;
+                        case ParkGateAI:
+                        case AirportEntranceAI:
+                        case MainIndustryBuildingAI:
+                        case MainCampusBuildingAI:
+                            {
+                                // We alternate Mail and Mail2 requests so we can collect mail with post trucks for these building types
+                                if (Singleton<SimulationManager>.instance.m_randomizer.Int32(2u) != 0)
+                                {
+                                    material = (TransferReason) CustomTransferReason.Reason.Mail2;
+                                }
+                                break;
+                            }
                     }
                 }
             }
@@ -129,9 +140,7 @@ namespace TransferManagerCore
                     if (iReservePercent > 0)
                     {
                         // Max vehicle count
-                        int budget = Singleton<EconomyManager>.instance.GetBudget(building.Info.m_class);
-                        int productionRate = PlayerBuildingAI.GetProductionRate(100, budget);
-                        int iTotalVehicles = (productionRate * warehouse.m_truckCount + 99) / 100;
+                        int iTotalVehicles = BuildingVehicleCount.GetAdjustedVehicleCount(warehouse.m_truckCount, building);
 
                         // Determine how many free vehicles it has
                         TransferReason actualTransferReason = warehouse.GetActualTransferReason(offer.Building, ref building);

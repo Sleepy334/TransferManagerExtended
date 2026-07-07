@@ -76,7 +76,7 @@ namespace TransferManagerCore
                     if (iNodeCount >= iMIN_LINK_COUNT)
                     {
                         // Add link to new graph
-                        //CDebug.Log($"Adding node link: {startNodeId} LinkNode: {nodeId} TravelTime: {fTravelTime} Direction: {direction}");
+                        //Log.Info($"Adding node link: {startNodeId} LinkNode: {nodeId} TravelTime: {fTravelTime} Direction: {direction}");
                         if (!m_newLinks.TryGetValue(startNodeId, out NodeLinkData data))
                         {
                             data = new NodeLinkData(m_data[startNodeId]); // Take a copy as we cant change in place while looping
@@ -88,7 +88,7 @@ namespace TransferManagerCore
             }
             else
             {
-                CDebug.Log($"ERROR: Node: {cuurentNodeId} not found in graph.");
+                Log.Info($"ERROR: Node: {cuurentNodeId} not found in graph.");
             }
         }
 

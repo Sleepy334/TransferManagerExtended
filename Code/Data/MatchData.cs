@@ -125,7 +125,7 @@ namespace TransferManagerCore
             }
             else
             {
-                CDebug.LogError("Tuple Alignment not found.");
+                Log.Error("Tuple Alignment not found.");
             }
         }
 

@@ -244,7 +244,7 @@ namespace TransferManagerCore.CustomManager
                     }
                 case DistrictRestrictionSettings.PreferLocal.Unknown:
                     {
-                        CDebug.Log("Error district restriction unknown");
+                        Log.Error("Error district restriction unknown");
                         return true;
                     }
             }

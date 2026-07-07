@@ -68,6 +68,7 @@ namespace TransferManagerCore
                 if (random.Int32(20U) == 0 &&
                     (vehicleData.m_flags & Vehicle.Flags.GoingBack) != 0 &&
                     (vehicleData.m_flags & Vehicle.Flags.WaitingTarget) == 0 &&
+                    (vehicleData.m_flags & Vehicle.Flags.Landing) == 0 &&
                     vehicleData.m_sourceBuilding != 0 &&
                     vehicleData.m_transferSize < __instance.m_crimeCapacity &&
                     !ShouldReturnToSource(vehicleID, ref vehicleData))
@@ -137,8 +138,7 @@ namespace TransferManagerCore
                     (building.m_flags & Building.Flags.Active) != 0 &&
                     (building.m_flags & Building.Flags.Abandoned) == 0 &&
                     building.m_crimeBuffer > 0 &&
-                    building.Info is not null && 
-                    building.Info.GetService() != ItemClass.Service.PoliceDepartment &&
+                    !BuildingTypeHelper.IsPoliceBuilding(building.Info) &&
                     building.Info.GetAI() is CommonBuildingAI)
                 {
                     int iCitizenCount = CrimeCitizenCountStorage.GetCitizenCount(buildingID, building);

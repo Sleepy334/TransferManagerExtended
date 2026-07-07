@@ -71,7 +71,7 @@ namespace TransferManagerCore
             }
             else
             {
-                CDebug.Log($"m_issueHelper is null");
+                Log.Info($"m_issueHelper is null");
             }
         }
 

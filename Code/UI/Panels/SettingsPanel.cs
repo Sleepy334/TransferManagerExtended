@@ -63,7 +63,7 @@ namespace TransferManagerCore.UI
             };
 
             // Title Bar
-            m_title = UITitleBar.Create(this, Localization.Get("titleSettingsPanel"), "Transfer", TransferManagerExtendedMod.Instance.LoadResources(), OnCloseClick);
+            m_title = UITitleBar.Create(this, Localization.Get("titleSettingsPanel"), "Transfer", TransferManagerMod.Instance.LoadResources(), OnCloseClick);
             if (m_title != null)
             {
                 m_title.AddButton("btnHighlight", atlas, "InfoIconLevel", "Highlight Matches", OnHighlightBuildingsClick);
@@ -142,7 +142,7 @@ namespace TransferManagerCore.UI
             }
 
             //long stopTicks = stopwatch.ElapsedTicks;
-            //CDebug.Log($"{((double)(stopTicks - startTicks) * 0.0001).ToString("F")}ms");
+            //Log.Info($"{((double)(stopTicks - startTicks) * 0.0001).ToString("F")}ms");
         }
 
         public void OnHighlightBuildingsClick(UIComponent component, UIMouseEventParameter eventParam)

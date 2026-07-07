@@ -26,7 +26,7 @@ namespace TransferManagerCore
         {
             base.BeginOverlayImpl(cameraInfo);
 
-            if (TransferManagerExtendedMod.Instance.IsLoaded)
+            if (TransferManagerMod.Instance.IsLoaded)
             {
                 HighlightNodes(cameraInfo);
             }

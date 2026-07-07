@@ -57,14 +57,14 @@ namespace TransferManagerCore
             if (tabStrip is not null)
             {
                 tabStrip.SetTabStyle(style);
-                tabStrip.name = "TransferManagerCore.tabStrip";
+                tabStrip.name = "TransferManagerCE.tabStrip";
                 tabStrip.width = width;
                 tabStrip.height = height;
                 tabStrip.autoLayout = true;
                 tabStrip.autoLayoutDirection = LayoutDirection.Vertical;
                 
                 tabStrip.m_tabButtonPanel = tabStrip.AddUIComponent<UIPanel>();
-                tabStrip.m_tabButtonPanel.name = "TransferManagerCore.m_tabButtonPanel";
+                tabStrip.m_tabButtonPanel.name = "TransferManagerCE.m_tabButtonPanel";
                 tabStrip.m_tabButtonPanel.width = width;
                 tabStrip.m_tabButtonPanel.height = 25;
                 tabStrip.m_tabButtonPanel.autoLayout = true;
@@ -228,7 +228,7 @@ namespace TransferManagerCore
                     }
                     else
                     {
-                        CDebug.Log($"ERROR: Unable to compact tab: {iTabIndex} buttonLabel: {buttonLabel} buttonPanel: {buttonPanel} buttonSprite: {buttonSprite}");
+                        Log.Info($"ERROR: Unable to compact tab: {iTabIndex} buttonLabel: {buttonLabel} buttonPanel: {buttonPanel} buttonSprite: {buttonSprite}");
                     }
 
                     // Update state

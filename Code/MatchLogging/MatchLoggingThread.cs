@@ -1,3 +1,4 @@
+using SleepyCommon;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
@@ -5,14 +6,17 @@ using TransferManagerCore.UI;
 
 namespace TransferManagerCore
 {
+    // ------------------------------------------------------------------------
     public class MatchLoggingThread
     {
         // About 10MB in file size
         const int iFILE_BUFFER_MAX_COUNT = 500000; 
 
         private static volatile bool s_runThread = true;
+
         private static Thread? s_matchLoggingThread = null;
         private static EventWaitHandle? s_waitHandle = null;
+        private static EventWaitHandle? s_finishingHandle = null;
 
         private int m_iMatchesWritten = 0;
         private long m_FileOffset = 0;
@@ -23,10 +27,17 @@ namespace TransferManagerCore
         private static List<ushort>? s_requestMatchesBuildingIds = null;
         private static readonly object s_buildingLock = new object();
 
+        // --------------------------------------------------------------------
+        public MatchLoggingThread()
+        {
+        }
+
+        // --------------------------------------------------------------------
         public static void StartThread()
         {
             if (s_matchLoggingThread is null)
             {
+                Log.Info("MatchLoggingThread: Starting thread...");
                 s_runThread = true;
 
                 // AutoResetEvent releases 1 thread only each time Set() is called.
@@ -38,16 +49,34 @@ namespace TransferManagerCore
             }
         }
 
+        // --------------------------------------------------------------------
         public static void StopThread()
         {
+            Log.Info("MatchLoggingThread: Stopping thread...");
+
+            // Initialise waiting event that will be triggered when thread finishes
+            s_finishingHandle = new ManualResetEvent(false);
+
             s_runThread = false;
             if (s_waitHandle is not null)
             {
                 s_waitHandle.Set();
             }
+
+            // Wait up to 3 seconds for thread to close
+            if (s_finishingHandle is not null)
+            {
+                s_finishingHandle.WaitOne(3000); 
+            }
+            Log.Info($"MatchLoggingThread: StopThread() - Finished.");
+
+            // Clean up
+            s_finishingHandle = null;
             s_waitHandle = null;
+            s_matchLoggingThread = null;
         }
 
+        // --------------------------------------------------------------------
         public static void RequestMatchesForBuildings(List<ushort> buildingIds)
         {
             lock (s_buildingLock)
@@ -62,6 +91,7 @@ namespace TransferManagerCore
             }
         }
 
+        // --------------------------------------------------------------------
         public static void AddMatchToBuffer(MatchData data)
         {
             lock (s_BufferLock)
@@ -74,8 +104,11 @@ namespace TransferManagerCore
             }
         }
 
-        public void ThreadMain()
+        // --------------------------------------------------------------------
+        private void ThreadMain()
         {
+            Log.Info("MatchLoggingThread: ThreadMain() - Started.");
+
             using (FileStream fs = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite | FileShare.Delete, 4096, FileOptions.DeleteOnClose)) 
             {
                 while (s_runThread)
@@ -117,12 +150,17 @@ namespace TransferManagerCore
                     }
                 }
             }
+
+            // Let main thread know we have now finished
+            if (s_finishingHandle is not null)
+            {
+                s_finishingHandle.Set();
+            }
+
+            Log.Info("MatchLoggingThread: ThreadMain() - Finished.");
         }
 
-        public MatchLoggingThread()
-        {
-        }
-
+        // --------------------------------------------------------------------
         private void WriteMatchesToFile(FileStream fs)
         {
             if (fs is not null && fs.CanWrite)
@@ -162,6 +200,7 @@ namespace TransferManagerCore
             }
         }
 
+        // --------------------------------------------------------------------
         private List<BuildingMatchData> ReadMatchesFromFile(ushort buildingId, FileStream fs)
         {
             List<BuildingMatchData> matches = new List<BuildingMatchData>();

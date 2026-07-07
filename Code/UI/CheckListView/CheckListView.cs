@@ -93,7 +93,7 @@ namespace TransferManagerCore
                 }
                 else
                 {
-                    CDebug.Log("m_listPanel is null");
+                    Log.Info("m_listPanel is null");
                     return;
                 }
 
@@ -107,7 +107,7 @@ namespace TransferManagerCore
                 }
                 else
                 {
-                    CDebug.Log("m_scrollbarPanel is null");
+                    Log.Info("m_scrollbarPanel is null");
                     return;
                 }
 

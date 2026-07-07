@@ -5,6 +5,7 @@ using static RenderManager;
 using System;
 using TransferManagerCore.UI;
 using static TransferManagerCore.NetworkModeHelper;
+using TransferManagerCore.CustomManager;
 
 namespace TransferManagerCore
 {
@@ -27,7 +28,7 @@ namespace TransferManagerCore
         {
             base.BeginOverlayImpl(cameraInfo);
 
-            if (TransferManagerExtendedMod.Instance.IsLoaded)
+            if (TransferManagerMod.Instance.IsLoaded)
             {
                 HighlightNodes(cameraInfo);
             }

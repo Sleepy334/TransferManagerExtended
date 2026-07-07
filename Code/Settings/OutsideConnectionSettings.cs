@@ -1,5 +1,6 @@
 ﻿using SleepyCommon;
 using System.Collections.Generic;
+using TransferManagerCore;
 
 namespace TransferManagerCore.Settings
 {
@@ -17,6 +18,14 @@ namespace TransferManagerCore.Settings
         public int m_touristFactor2;
         public int m_dummyTrafficFactor;
         public string m_name;
+
+        public static int Count
+        {
+            get
+            {
+                return s_Settings.Count;
+            }
+        }
 
         public OutsideConnectionSettings()
         {
@@ -188,7 +197,7 @@ namespace TransferManagerCore.Settings
             {
                 int iOutsideConnectionSettingsVersion = StorageData.ReadInt32(Data, ref iIndex);
 #if DEBUG
-                CDebug.Log("Global: " + iGlobalVersion + " OutsideConnectionSettingsVersion: " + iOutsideConnectionSettingsVersion + " DataLength: " + Data.Length + " Index: " + iIndex);
+                Log.Info("Global: " + iGlobalVersion + " OutsideConnectionSettingsVersion: " + iOutsideConnectionSettingsVersion + " DataLength: " + Data.Length + " Index: " + iIndex);
 #endif
                 OutsideConnectionSettings defaultSettings = new OutsideConnectionSettings();
 
@@ -205,7 +214,7 @@ namespace TransferManagerCore.Settings
                             case 1: settings = LoadDataVersion1(Data, ref iIndex); break;
                             default:
                                 {
-                                    CDebug.Log("New data version, unable to load!");
+                                    Log.Info("New data version, unable to load!");
                                     break;
                                 }
                         }

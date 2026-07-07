@@ -1,5 +1,6 @@
 ﻿using SleepyCommon;
 using System;
+using System.Diagnostics;
 using TransferManagerCore.CustomManager.Stats;
 using static TransferManager;
 
@@ -119,7 +120,7 @@ namespace TransferManagerCore.CustomManager
             {
                 m_droppedReasonCount++;
                 ClearAllTransferOffers(material, ref incomingCount, ref outgoingCount, ref incomingAmount, ref outgoingAmount);
-                CDebug.Log($"Already in queue or running, discarding: {material}");
+                Log.Warning($"Already in queue or running, discarding: {material}");
                 return;
             }
 
@@ -127,7 +128,7 @@ namespace TransferManagerCore.CustomManager
             TransferJob? job = TransferJobPool.Instance.Lease();
             if (job is null)
             {
-                CDebug.LogError($"NO MORE TRANSFER JOBS AVAILABLE, DROPPING TRANSFER REQUESTS FOR {material}");
+                Log.Error($"NO MORE TRANSFER JOBS AVAILABLE, DROPPING TRANSFER REQUESTS FOR {material}");
                 ClearAllTransferOffers(material, ref incomingCount, ref outgoingCount, ref incomingAmount, ref outgoingAmount);
                 return;
             }

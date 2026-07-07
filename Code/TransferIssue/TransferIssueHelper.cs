@@ -447,8 +447,7 @@ namespace TransferManagerCore
         {
             if (building.m_crimeBuffer > 0 &&
                 (building.m_problems & Notification.Problem1.Crime).IsNotNone &&
-                building.Info is not null && 
-                building.Info.GetService() != ItemClass.Service.PoliceDepartment)
+                !BuildingTypeHelper.IsPoliceBuilding(building.Info))
             {
                 // Cached citizen count
                 int iMaxRate = StatusDataCrime.iMAJOR_CRIME_RATE;

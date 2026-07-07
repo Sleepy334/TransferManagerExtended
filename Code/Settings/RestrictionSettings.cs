@@ -3,6 +3,7 @@ using SleepyCommon;
 using System;
 using System.Collections.Generic;
 using TransferManagerCore.Settings;
+using TransferManagerCore;
 
 namespace TransferManagerCore
 {
@@ -303,7 +304,7 @@ namespace TransferManagerCore
                     else
                     {
                         // District doesn't exist any more
-                        CDebug.Log("District missing: " + districtId.m_iDistrictId);
+                        Log.Info("District missing: " + districtId.m_iDistrictId);
                     }
                 }
                 else
@@ -316,7 +317,7 @@ namespace TransferManagerCore
                     else
                     {
                         // District doesn't exist any more
-                        CDebug.Log("Park missing: " + districtId.m_iDistrictId);
+                        Log.Info("Park missing: " + districtId.m_iDistrictId);
                     }
                 }
             }

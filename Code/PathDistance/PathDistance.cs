@@ -133,7 +133,7 @@ namespace TransferManagerCore
                     // Safety check in case we get caught in an infinite loop somehow
                     if (iLoopCount++ > NetManager.MAX_NODE_COUNT)
                     {
-                        CDebug.Log($"Invalid loop detected.");
+                        Log.Info($"Invalid loop detected.");
                         break;
                     }
                 } // End while

@@ -26,7 +26,7 @@ namespace TransferManagerCore.UI
         // ----------------------------------------------------------------------------------------
         public override void SetupInternal()
         {
-            UIPanel? tabTransfers = m_tabStrip.AddTabIcon("Transfer", Localization.Get("tabBuildingPanelTransfers"), TransferManagerExtendedMod.Instance.LoadResources(), "", 120f);
+            UIPanel? tabTransfers = m_tabStrip.AddTabIcon("Transfer", Localization.Get("tabBuildingPanelTransfers"), TransferManagerMod.Instance.LoadResources(), "", 120f);
             if (tabTransfers is not null)
             {
                 tabTransfers.autoLayout = true;

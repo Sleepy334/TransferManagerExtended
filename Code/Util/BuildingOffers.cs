@@ -36,7 +36,7 @@ namespace TransferManagerCore
             // Find offers to this building.
             if (m_incomingOffers is not null && m_outgoingOffers is not null)
             {
-                for (int material = 0; material < TransferManagerAwakePatch.NEW_TRANSFER_REASON_COUNT; material++)
+                for (int material = 0; material < TRANSFER_REASON_COUNT; material++)
                 {
                     TransferReason reason = (TransferReason)material;
 

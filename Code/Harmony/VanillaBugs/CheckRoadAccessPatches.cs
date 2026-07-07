@@ -24,13 +24,13 @@ namespace TransferManagerCore
                 {
                     if (FindTrainAccess(buildingID, ref data, data.m_position, out var segmentID, mostCloser: true))
                     {
-                        CDebug.Log($"Building: {buildingID} - Train access segment found.");
+                        Log.Info($"Building: {buildingID} - Train access segment found.");
                         data.m_accessSegment = segmentID;
                         flag = false;
                     }
                     else
                     {
-                        CDebug.Log("No Train Access segment found.");
+                        Log.Info("No Train Access segment found.");
                     }
                 }
 

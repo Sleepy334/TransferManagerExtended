@@ -37,8 +37,8 @@ namespace TransferManagerCore.UI
             autoLayoutPadding = new RectOffset(10, 0, 0, 0);
 
             // Copy/Paste
-            UIMyUtils.AddSpriteButton(UIMyUtils.ButtonStyle.DropDown, this, "CopyButtonIcon", Localization.Get("tooltipCopySettings"), TransferManagerExtendedMod.Instance.LoadResources(), 30, 30, OnCopyClicked);
-            m_btnPaste = UIMyUtils.AddSpriteButton(UIMyUtils.ButtonStyle.DropDown, this, "PasteButtonIcon", Localization.Get("tooltipPasteSettings"), TransferManagerExtendedMod.Instance.LoadResources(), 30, 30, OnPasteClicked);
+            UIMyUtils.AddSpriteButton(UIMyUtils.ButtonStyle.DropDown, this, "CopyButtonIcon", Localization.Get("tooltipCopySettings"), TransferManagerMod.Instance.LoadResources(), 30, 30, OnCopyClicked);
+            m_btnPaste = UIMyUtils.AddSpriteButton(UIMyUtils.ButtonStyle.DropDown, this, "PasteButtonIcon", Localization.Get("tooltipPasteSettings"), TransferManagerMod.Instance.LoadResources(), 30, 30, OnPasteClicked);
 
             // Clear
             m_btnClear = UIMyUtils.AddSpriteButton(UIMyUtils.ButtonStyle.DropDown, this, "Niet", Localization.Get("tooltipClearSettings"), atlas, 30, 30, OnClearClicked);

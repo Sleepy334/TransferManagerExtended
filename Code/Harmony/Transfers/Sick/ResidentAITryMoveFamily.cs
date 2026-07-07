@@ -12,7 +12,6 @@ namespace TransferManagerCore
         public static bool TryMoveFamily(uint citizenID, ref Citizen data, int familySize)
         {
             if (data.m_homeBuilding != 0 &&
-                SaveGameSettings.GetSettings().EnableNewTransferManager &&
                 SaveGameSettings.GetSettings().OverrideSickHandler)
             {
                 // Check the rest of the family unit for a sick member

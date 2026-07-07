@@ -131,7 +131,7 @@ namespace TransferManagerCore.UI
             CenterTo(parent);
 
             // Title Bar
-            m_title = UITitleBar.Create(this, "Path Distance", "Transfer", TransferManagerExtendedMod.Instance.LoadResources(), OnCloseClick);
+            m_title = UITitleBar.Create(this, "Path Distance", "Transfer", TransferManagerMod.Instance.LoadResources(), OnCloseClick);
             if (m_title != null)
             {
                 m_title.AddButton("btnSelectionTool", atlas, "LineDetailButton", "Activate Selection Tool", OnSelectionToolClick);

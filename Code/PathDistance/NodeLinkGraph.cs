@@ -165,7 +165,7 @@ namespace TransferManagerCore
 #if DEBUG
             if (!ValidateLinks(allNodeLinks))
             {
-                CDebug.Log($"ERROR: Node link graph not valid. {m_mode}");
+                Log.Info($"ERROR: Node link graph not valid. {m_mode}");
             }
 #endif
 
@@ -191,7 +191,7 @@ namespace TransferManagerCore
                     if (!newLinks.ContainsKey(link.m_nodeId))
                     {
                         NetNode node = NetManager.instance.m_nodes.m_buffer[link.m_nodeId];
-                        CDebug.Log($"ERROR: Node: {link.m_nodeId} not found in graph. Flags: {node.m_flags} Service: {node.Info.GetService()} AI: {node.Info.GetAI()}");
+                        Log.Info($"ERROR: Node: {link.m_nodeId} not found in graph. Flags: {node.m_flags} Service: {node.Info.GetService()} AI: {node.Info.GetAI()}");
                         return false;
                     }
                 }

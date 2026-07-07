@@ -66,7 +66,6 @@ namespace TransferManagerCore
         public static bool Prefix(uint citizenID, ushort sourceBuilding, TransferManager.TransferReason reason, ref bool __result)
         {
             if (sourceBuilding != 0 &&
-                SaveGameSettings.GetSettings().EnableNewTransferManager &&
                 SaveGameSettings.GetSettings().OverrideSickHandler)
             {
                 // Bypass vanilla function as we will handle building collection ourselves

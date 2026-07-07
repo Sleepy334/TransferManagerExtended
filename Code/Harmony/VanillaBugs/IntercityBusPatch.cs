@@ -23,7 +23,7 @@ namespace TransferManagerCore
             // Have we already patched the function, if so just return unaltered.
             if (s_bPatched)
             {
-                CDebug.Log($"ERROR: TransportStationAI.CreateConnectionLines - Already patched!", false);
+                Log.Error($"ERROR: TransportStationAI.CreateConnectionLines - Already patched!");
                 return instructions.AsEnumerable();
             }
             s_bPatched = true;
@@ -32,19 +32,19 @@ namespace TransferManagerCore
             FieldInfo fieldInfo = typeof(TransportStationAI).GetField("m_info", BindingFlags.Instance | BindingFlags.Public);
             if (fieldInfo == null)
             {
-                CDebug.Log($"ERROR: TransportStationAI.m_info not found");
+                Log.Error($"ERROR: TransportStationAI.m_info not found");
                 return instructions.AsEnumerable();
             }
 
             MethodInfo methodAddBusLines = typeof(IntercityBusPatch).GetMethod("AddBusLines", BindingFlags.Static | BindingFlags.Public);
             if (methodAddBusLines == null)
             {
-                CDebug.Log($"ERROR: IntercityBusPatch.AddBusLines not found");
+                Log.Error($"ERROR: IntercityBusPatch.AddBusLines not found");
                 return instructions.AsEnumerable();
             }
 
             // Peform patch, we want to add in an extra check before bus line code.
-            // call       static System.Boolean TransferManagerCore.IntercityBusPatch::AddBusLines(TransportStationAI station)
+            // call       static System.Boolean TransferManagerCE.IntercityBusPatch::AddBusLines(TransportStationAI station)
             // brfalse => Label15
             List<CodeInstruction> newInstructionList = new List<CodeInstruction>();
 
@@ -81,7 +81,7 @@ namespace TransferManagerCore
                 }
             }
 
-            CDebug.Log($"TransportStationAI.CreateConnectionLines patch {((bPatched) ? "succeeded" : "failed")}.", false);
+            Log.Info($"TransportStationAI.CreateConnectionLines patch {((bPatched) ? "succeeded" : "failed")}.");
             return newInstructionList.AsEnumerable();
         }
 

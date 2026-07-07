@@ -89,7 +89,7 @@ namespace TransferManagerCore
         public static void HighlightVehicle(Vehicle[] VehicleBuffer, CameraInfo cameraInfo, ushort vehicleId, Color color)
         {
             Vehicle vehicle = VehicleBuffer[vehicleId];
-            if (vehicle.m_cargoParent != 0)
+            if (vehicle.m_cargoParent != 0 && vehicle.m_cargoParent != vehicleId)
             {
                 // Highlight parent instead
                 HighlightVehicle(VehicleBuffer, cameraInfo, vehicle.m_cargoParent, color);

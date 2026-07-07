@@ -14,40 +14,36 @@ namespace TransferManagerCore
         // Also as the matching is done in separate threads I don't think we need the gap like they have done.
         private static Dictionary<int, CustomTransferReason.Reason> s_frameReasonList = new Dictionary<int, CustomTransferReason.Reason>()
         {
+#if TRANSFER_MANAGER_EXTENDED
             // Prison Helicopter Mod
-            { 100, CustomTransferReason.Reason.PoliceVanCrimeMove },
-            { 102, CustomTransferReason.Reason.CrimePickup2 },
-            { 104, CustomTransferReason.Reason.CrimeMove2 },
-
-            // TME reasons
+            { 100, CustomTransferReason.Reason.PoliceVanCriminalMove },
+            { 102, CustomTransferReason.Reason.CriminalPickup2 },
+            { 104, CustomTransferReason.Reason.CriminalMove2 },
+#endif
+            // Transfer Manager Extended/CE reasons
             { 148, CustomTransferReason.Reason.Crime2 },
             { 180, CustomTransferReason.Reason.TaxiMove },
             { 212, CustomTransferReason.Reason.Mail2 },
             { 214, CustomTransferReason.Reason.IntercityBus },
         };
 
+
         // ----------------------------------------------------------------------------------------
         [HarmonyPatch(typeof(TransferManager), "AddIncomingOffer")]
         [HarmonyPrefix]
         public static bool AddIncomingOfferPrefix(ref TransferReason material, ref TransferOffer offer)
         {
-#if DEBUG
-            CDebug.Log($"AddIncomingOfferPrefix");
-#endif
             SaveGameSettings settings = SaveGameSettings.GetSettings();
 
-            if (settings.EnableNewTransferManager)
+            // Pass through to Improved matching to adjust offer
+            if (!ImprovedIncomingTransfers.HandleOffer(material, ref offer))
             {
-                // Pass through to Improved matching to adjust offer
-                if (!ImprovedIncomingTransfers.HandleOffer(material, ref offer))
-                {
-                    // If HandleIncomingOffer returns false then don't add offer to offers list
-                    return false;
-                }
-
-                // Update access segment if using path distance but do it in simulation thread so we don't break anything
-                TransferManagerUtils.CheckRoadAccess((CustomTransferReason.Reason)material, offer);
+                // If HandleIncomingOffer returns false then don't add offer to offers list
+                return false;
             }
+
+            // Update access segment if using path distance but do it in simulation thread so we don't break anything
+            TransferManagerUtils.CheckRoadAccess((CustomTransferReason.Reason)material, offer);
 
             // Update the stats for the specific material
             MatchStats.RecordAddIncoming(material, offer.Amount);
@@ -66,23 +62,17 @@ namespace TransferManagerCore
         [HarmonyPrefix]
         public static bool AddOutgoingOfferPrefix(ref TransferReason material, ref TransferOffer offer)
         {
-#if DEBUG
-            CDebug.Log($"AddOutgoingOfferPrefix");
-#endif
             SaveGameSettings settings = SaveGameSettings.GetSettings();
 
-            if (settings.EnableNewTransferManager)
+            // Pass through to Improved matching to adjust offer
+            if (!ImprovedOutgoingTransfers.HandleOffer(ref material, ref offer))
             {
-                // Pass through to Improved matching to adjust offer
-                if (!ImprovedOutgoingTransfers.HandleOffer(ref material, ref offer))
-                {
-                    // If HandleOffer returns false then don't add offer to offers list
-                    return false;
-                }
-
-                // Update access segment if using path distance but do it in simulation thread so we don't break anything
-                TransferManagerUtils.CheckRoadAccess((CustomTransferReason.Reason)material, offer);
+                // If HandleOffer returns false then don't add offer to offers list
+                return false;
             }
+
+            // Update access segment if using path distance but do it in simulation thread so we don't break anything
+            TransferManagerUtils.CheckRoadAccess((CustomTransferReason.Reason)material, offer);
 
             // Update the stats for the specific material
             MatchStats.RecordAddOutgoing(material, offer.Amount);
@@ -102,21 +92,15 @@ namespace TransferManagerCore
         [HarmonyPostfix]
         public static void GetFrameReasonPostfix(int frameIndex, ref TransferReason __result)
         {
-#if DEBUG
-            CDebug.Log($"GetFrameReason");
-#endif
-            if (SaveGameSettings.GetSettings().EnableNewTransferManager)
+            if (s_frameReasonList.TryGetValue(frameIndex, out CustomTransferReason.Reason reason))
             {
-                if (s_frameReasonList.TryGetValue(frameIndex, out CustomTransferReason.Reason reason))
+                if (__result == TransferReason.None)
                 {
-                    if (__result == TransferReason.None)
-                    {
-                        __result = (TransferReason) reason;
-                    }
-                    else
-                    {
-                        CDebug.LogError($"Error: FrameIndex {frameIndex} is in use by {__result}, {reason} not available.");
-                    }
+                    __result = (TransferReason) reason;
+                }
+                else
+                {
+                    Log.Error($"Error: FrameIndex {frameIndex} is in use by {__result}, {reason} not available.");
                 }
             }
         }
@@ -133,38 +117,26 @@ namespace TransferManagerCore
                                     ref int[] ___m_incomingAmount,
                                     ref int[] ___m_outgoingAmount)
         {
-#if DEBUG
-            CDebug.Log($"MatchOffersPrefix");
-#endif
-            // Check if disabled in settings?
-            if (SaveGameSettings.GetSettings().EnableNewTransferManager)
+            // Support Employ Over Educated Workers
+            switch (material)
             {
-                // Support Employ Over Educated Workers
-                switch (material)
-                {
-                    case TransferReason.Worker0:
-                    case TransferReason.Worker1:
-                    case TransferReason.Worker2:
-                    case TransferReason.Worker3:
+                case TransferReason.Worker0:
+                case TransferReason.Worker1:
+                case TransferReason.Worker2:
+                case TransferReason.Worker3:
+                    {
+                        if (DependencyUtils.IsEmployOverEducatedWorkersRunning())
                         {
-                            if (DependencyUtils.IsEmployOverEducatedWorkersRunning())
-                            {
-                                // Handle with Employ Overeducated Workers MatchOffers rather than ours
-                                return true;
-                            }
-                            break;
+                            // Handle with Employ Overeducated Workers MatchOffers rather than ours
+                            return true;
                         }
-                }
+                        break;
+                    }
+            }
 
-                // Dispatch to TransferDispatcher
-                CustomTransferDispatcher.Instance.SubmitMatchOfferJob(material, ref ___m_incomingCount, ref ___m_outgoingCount, ___m_incomingOffers, ___m_outgoingOffers, ref ___m_incomingAmount, ref ___m_outgoingAmount);
-                return false;
-            }
-            else
-            {
-                // Handle with vanilla Transfer Manager
-                return true;
-            }
+            // Dispatch to TransferDispatcher
+            CustomTransferDispatcher.Instance.SubmitMatchOfferJob(material, ref ___m_incomingCount, ref ___m_outgoingCount, ___m_incomingOffers, ___m_outgoingOffers, ref ___m_incomingAmount, ref ___m_outgoingAmount);
+            return false;
         }
 
         // ----------------------------------------------------------------------------------------
@@ -172,14 +144,8 @@ namespace TransferManagerCore
         [HarmonyPostfix]
         public static void MatchOffersPostfix()
         {
-#if DEBUG
-            CDebug.Log($"MatchOffers");
-#endif
-            if (SaveGameSettings.GetSettings().EnableNewTransferManager)
-            {
-                // Start queued transfers:
-                CustomTransferDispatcher.Instance.StartTransfers();
-            }
+            // Start queued transfers:
+            CustomTransferDispatcher.Instance.StartTransfers();
         }
 
         // ----------------------------------------------------------------------------------------
@@ -188,9 +154,6 @@ namespace TransferManagerCore
         [HarmonyPrefix]
         public static void StartTransferPrefix(TransferManager.TransferReason material, TransferManager.TransferOffer offerOut, TransferManager.TransferOffer offerIn, int delta)
         {
-#if DEBUG
-            CDebug.Log($"StartTransfer");
-#endif
             // Handle this match
             MatchHandler.Match(material, offerOut, offerIn, delta);
         }

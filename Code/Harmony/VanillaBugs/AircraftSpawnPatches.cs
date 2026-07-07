@@ -35,7 +35,7 @@ namespace TransferManagerCore
             if (bForceSpawn && CitiesUtils.IsNearOutsideConnection(pos, ItemClass.SubService.PublicTransportPlane))
             {
 #if DEBUG
-                CDebug.Log($"Force spawn: {__instance}");
+                Log.Info($"Force spawn: {__instance}");
 #endif
                 __result = true;
                 return false; // Override vanilla function
@@ -69,7 +69,7 @@ namespace TransferManagerCore
                 CitiesUtils.IsNearOutsideConnection(vehicleData.GetLastFramePosition(), ItemClass.SubService.PublicTransportPlane))
             {
 #if DEBUG
-                CDebug.Log($"Force spawn: {__instance}");
+                Log.Info($"Force spawn: {__instance}");
 #endif
                 // Force spawn at outside connection
                 vehicleData.Spawn(vehicleID);

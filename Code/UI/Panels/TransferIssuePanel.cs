@@ -76,7 +76,7 @@ namespace TransferManagerCore.UI
             CenterTo(parent);
 
             // Title Bar
-            m_title = UITitleBar.Create(this, Localization.Get("titleTransferIssuesPanel"), "Transfer", TransferManagerExtendedMod.Instance.LoadResources(), OnCloseClick);
+            m_title = UITitleBar.Create(this, Localization.Get("titleTransferIssuesPanel"), "Transfer", TransferManagerMod.Instance.LoadResources(), OnCloseClick);
             if (m_title != null)
             {
                 m_title.AddButton("btnHighlight", atlas, "InfoIconLevel", "Highlight Matches", OnHighlightIssuesClick);
@@ -143,7 +143,7 @@ namespace TransferManagerCore.UI
                 // Add issue filter buttons
 
                 // Dead
-                UIToggleButton btnDead = UIMyUtils.AddSpriteToggleButton(settings.ShowDeadIssues, UIMyUtils.ButtonStyle.DropDown, pnlButtons, "Dead", Localization.Get("tabTransferIssuesDead"), TransferManagerExtendedMod.Instance.LoadResources(), 30, 30, null);
+                UIToggleButton btnDead = UIMyUtils.AddSpriteToggleButton(settings.ShowDeadIssues, UIMyUtils.ButtonStyle.DropDown, pnlButtons, "Dead", Localization.Get("tabTransferIssuesDead"), TransferManagerMod.Instance.LoadResources(), 30, 30, null);
                 btnDead.eventClick += (s, e) =>
                 {
                     UIToggleButton toggleButton = (UIToggleButton)s;

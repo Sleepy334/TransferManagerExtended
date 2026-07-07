@@ -45,15 +45,11 @@ namespace TransferManagerCore.Data
         
         protected override string CalculateTimer(out string tooltip)
         {
-            Building building = BuildingManager.instance.m_buildings.m_buffer[m_buildingId];
-            if (building.m_deathProblemTimer > 0)
-            {
-                return base.CalculateTimer(out tooltip) + "D:" + building.m_deathProblemTimer.ToString();
-            }
-            else
-            {
-                return base.CalculateTimer(out tooltip);
-            }
+            string sTimer = base.CalculateTimer(out tooltip);
+
+            AddTimerText(TimerType.Death, ref sTimer, ref tooltip);
+
+            return sTimer;
         }
     }
 }

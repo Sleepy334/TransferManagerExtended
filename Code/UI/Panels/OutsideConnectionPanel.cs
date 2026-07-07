@@ -48,7 +48,7 @@ namespace TransferManagerCore.UI
             CenterTo(parent);
 
             // Title Bar
-            m_title = UITitleBar.Create(this, Localization.Get("titleOutsideConnectionPanel"), "Transfer", TransferManagerExtendedMod.Instance.LoadResources(), OnCloseClick);
+            m_title = UITitleBar.Create(this, Localization.Get("titleOutsideConnectionPanel"), "Transfer", TransferManagerMod.Instance.LoadResources(), OnCloseClick);
             if (m_title != null)
             {
                 m_title.SetupButtons();
