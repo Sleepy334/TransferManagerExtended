@@ -23,7 +23,7 @@ namespace TransferManagerCore.Data
                 {
                     case BuildingType.Bank:
                         {
-                            tooltip = "Percent of Cash Capacity";
+                            tooltip = Localization.Get("tip_PercentOfCashCapacity");
                             return "0"; // TODO
                         }
                     case BuildingType.ServicePoint:

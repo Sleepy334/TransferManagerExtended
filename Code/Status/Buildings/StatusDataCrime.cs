@@ -28,7 +28,7 @@ namespace TransferManagerCore.Data
                     case BuildingType.HelicopterPrison:
                         {
                             // Prison Helicopter Mod
-                            tooltip = "# of criminals";
+                            tooltip = Localization.Get("tip_Criminals");
                             return BuildingUtils.GetCriminalsAtPoliceStation(m_buildingId, building).ToString();
                         }
                     case BuildingType.MainCampusBuilding:
