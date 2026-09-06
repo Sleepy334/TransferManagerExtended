@@ -65,7 +65,7 @@ namespace TransferManagerCore
             CustomTransferReason.Reason reason = GetTransferType(vehicle);
             if (reason != CustomTransferReason.Reason.None)
             {
-                sText += $"{reason.ToString()} | ";
+                sText += $"{CustomTransferReason.GetLocalizedReason(reason)} | ";
             }
 
             sText += $"{InstanceHelper.DescribeInstance(new InstanceID { Vehicle = vehicleId }, true, true)}";

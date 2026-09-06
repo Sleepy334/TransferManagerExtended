@@ -89,7 +89,7 @@ namespace TransferManagerCore
 
         public bool Contains(string search)
         {
-            if (m_material.ToString().ToUpper().Contains(search))
+            if (CustomTransferReason.GetLocalizedReason(m_material).ToUpper().Contains(search))
             {
                 return true;
             }

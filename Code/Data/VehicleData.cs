@@ -71,7 +71,7 @@ namespace TransferManagerCore.Data
 
         public virtual string GetMaterialDescription()
         {
-            return GetMaterial().ToString();
+            return CustomTransferReason.GetLocalizedReason(GetMaterial());
         }
 
         public virtual string GetTarget()
