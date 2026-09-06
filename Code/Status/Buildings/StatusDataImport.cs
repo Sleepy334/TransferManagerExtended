@@ -12,12 +12,12 @@ namespace TransferManagerCore.Data
 
         public override string GetMaterialDescription()
         {
-            return "Import";
+            return GetLocalizedLabel("status_Import", "Import");
         }
 
         protected override string CalculateValue(out string tooltip)
         {
-            tooltip = "Amount Imported";
+            tooltip = Localization.Get("tip_AmountImported");
 
             if (m_buildingId != 0)
             {

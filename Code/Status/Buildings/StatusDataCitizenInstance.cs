@@ -14,12 +14,12 @@ namespace TransferManagerCore.Data
 
         public override string GetMaterialDescription()
         {
-            return "Citizen Instances";
+            return GetLocalizedLabel("status_CitizenInstances", "Citizen Instances");
         }
 
         protected override string CalculateValue(out string tooltip)
         {
-            tooltip = "Source citizen instances | Target citizen instances";
+            tooltip = Localization.Get("tip_SourceCitizenInstancesTargetCitizenInstances");
 
             if (m_buildingId != 0)
             {

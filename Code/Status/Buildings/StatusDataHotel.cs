@@ -15,12 +15,12 @@ namespace TransferManagerCore.Data
 
         public override string GetMaterialDescription()
         {
-            return "Guests";
+            return GetLocalizedLabel("status_Guests", "Guests");
         }
 
         protected override string CalculateValue(out string tooltip)
         {
-            tooltip = "Guests / Max Guests";
+            tooltip = Localization.Get("tip_GuestsMaxGuests");
 
             Building building = BuildingManager.instance.m_buildings.m_buffer[m_buildingId];
             if (building.m_flags != 0)

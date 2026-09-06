@@ -12,12 +12,12 @@ namespace TransferManagerCore.Data
 
         public override string GetMaterialDescription()
         {
-            return "Citizens";
+            return GetLocalizedLabel("status_Citizens", "Citizens");
         }
 
         protected override string CalculateValue(out string tooltip)
         {
-            tooltip = "Citizens in building | Total citizens allocated to building";
+            tooltip = Localization.Get("tip_CitizensInBuildingTotalCitizensAllocatedToBuilding");
 
             if (m_buildingId != 0)
             {
