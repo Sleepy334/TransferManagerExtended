@@ -99,7 +99,7 @@
 "listBuildingPanelOffersColumn6","描述"
 "listBuildingPanelMatchesColumn1","时间"
 "listBuildingPanelMatchesColumn2","材料"
-"listBuildingPanelMatchesColumn3","发/接车"
+"listBuildingPanelMatchesColumn3","调度"
 "listBuildingPanelMatchesColumn4","数量"
 "listBuildingPanelMatchesColumn5","Δ"
 "listBuildingPanelMatchesColumn6","描述"
@@ -211,7 +211,7 @@
 "txtBlockedDistricts","被屏蔽的区划"
 "txtCurrentDistrict","当前区划"
 "txtCurrentPark","当前区域"
-"txtLoad","载入"
+"txtLoad","载货量"
 "",""
 "GROUP_IMPROVED_SERVICES_MATCHING","优化服务匹配策略"
 "tabMatches","匹配"
@@ -273,7 +273,7 @@
 "GROUP_SICK_COLLECTION","患病居民救治"
 "txtOverrideSickHandler","游戏原版疾病处理机制带来的后果非常轻微：市民偶尔会被迫回家休养，建筑物极少会被废弃。此选项将用一个自定义处理机制覆盖原版机制：如果救护车未能及时抵达，市民们将会经常死亡。"
 "optionOverrideSickHandler","覆盖原版疾病处理机制"
-"txtSickSadNotification","当建筑存在待收治病患但自身无健康问题时，显示患病通知。"
+"txtSickSadNotification","当建筑存在待收治病人但自身无健康问题时，显示患病通知。"
 "optionDisplaySickNotification","显示患病通知"
 "optionSickHelicopterRate","医疗直升机请求率"
 "txtSickHelicopterRate","市民需要医疗直升机而非救护车的频率。"
@@ -511,12 +511,12 @@
 
 "reason_Garbage","垃圾"
 "reason_Crime","犯罪"
-"reason_Sick","病患"
+"reason_Sick","病人"
 "reason_Dead","尸体"
-"reason_Worker0","未受教育工人"
-"reason_Worker1","受过教育工人"
-"reason_Worker2","高等教育工人"
-"reason_Worker3","极高教育工人"
+"reason_Worker0","未受教育"
+"reason_Worker1","受普通教育"
+"reason_Worker2","受中等教育"
+"reason_Worker3","受高等教育"
 "reason_StudentES","小学学生"
 "reason_StudentHS","中学学生"
 "reason_StudentUni","大学学生"
@@ -530,21 +530,21 @@
 "reason_PassengerTrain","客运列车"
 "reason_Coal","煤炭"
 "reason_Family0","家庭(未受教育)"
-"reason_Family1","家庭(受过教育)"
-"reason_Family2","家庭(高等教育)"
-"reason_Family3","家庭(极高教育)"
+"reason_Family1","家庭(受普通教育)"
+"reason_Family2","家庭(受中等教育)"
+"reason_Family3","家庭(受高等教育)"
 "reason_Single0","单身(未受教育)"
-"reason_Single1","单身(受过教育)"
-"reason_Single2","单身(高等教育)"
-"reason_Single3","单身(极高教育)"
+"reason_Single1","单身(受普通教育)"
+"reason_Single2","单身(受中等教育)"
+"reason_Single3","单身(受高等教育)"
 "reason_PartnerYoung","年轻伴侣"
 "reason_PartnerAdult","成年伴侣"
 "reason_Shopping","购物"
 "reason_Petrol","燃油"
 "reason_Food","食物"
 "reason_LeaveCity0","离开城市(未受教育)"
-"reason_LeaveCity1","离开城市(受过教育)"
-"reason_LeaveCity2","离开城市(高等教育)"
+"reason_LeaveCity1","离开城市(受普通教育)"
+"reason_LeaveCity2","离开城市(受中等教育)"
 "reason_Entertainment","娱乐"
 "reason_Lumber","木材"
 "reason_GarbageMove","垃圾转运"
@@ -557,9 +557,9 @@
 "reason_DummyShip","虚拟轮船"
 "reason_DummyPlane","虚拟飞机"
 "reason_Single0B","单身(未受教育)"
-"reason_Single1B","单身(受过教育)"
-"reason_Single2B","单身(高等教育)"
-"reason_Single3B","单身(极高教育)"
+"reason_Single1B","单身(受普通教育)"
+"reason_Single2B","单身(受中等教育)"
+"reason_Single3B","单身(受高等教育)"
 "reason_ShoppingB","购物(B)"
 "reason_ShoppingC","购物(C)"
 "reason_ShoppingD","购物(D)"
@@ -576,7 +576,7 @@
 "reason_Snow","积雪"
 "reason_SnowMove","积雪转运"
 "reason_RoadMaintenance","道路维护"
-"reason_SickMove","病患转移"
+"reason_SickMove","病人转移"
 "reason_ForestFire","森林火灾"
 "reason_Collapsed","坍塌"
 "reason_Collapsed2","坍塌救援"
@@ -639,11 +639,11 @@
 "reason_CriminalPickup2","罪犯接运(直升机)"
 "reason_CriminalMove2","罪犯转移(直升机)"
 "reason_None","无"
-"issue_Sick","病患"
+"issue_Sick","病人"
 "issue_Dead","尸体"
 "issue_Crime","犯罪"
 "issue_Garbage","垃圾"
-"issue_Incoming","入库"
+"issue_Incoming","输入"
 "issue_Outgoing","出库"
 "issue_Worker","工人"
 "issue_Services","服务"
@@ -746,7 +746,7 @@
 "status_Visitors","游客"
 "status_Workers","工人"
 "status_group_general","常规"
-"status_group_incoming","入库"
+"status_group_incoming","输入"
 "status_group_outgoing","出库"
 "status_group_services","服务"
 "vehstate_Congestion","拥堵"
@@ -834,3 +834,19 @@
 
 "tip_AllowedBuildings","允许的建筑:"
 "tip_PathDistanceTool","路径距离工具: "
+"tip_Material","材料"
+"tip_Object","对象"
+"tip_Priority","优先级"
+"tip_Amount","数量"
+"tip_Active","调度"
+"tip_Time","时间"
+"tip_Park","园区"
+"tip_Distance","距离"
+"tip_In","调入端 (In)"
+"tip_Out","调出端 (Out)"
+"tip_ActiveValue","主动"
+"tip_PassiveValue","等待"
+"inout_In","进口"
+"inout_Out","出口"
+"disp_Active","发车"
+"disp_Passive","接车"

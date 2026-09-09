@@ -1,6 +1,7 @@
 using static TransferManager;
 using static TransferManagerCore.BuildingTypeHelper;
 
+using SleepyCommon;
 namespace TransferManagerCore.Data
 {
     public class StatusDataVisitors : StatusDataBuilding

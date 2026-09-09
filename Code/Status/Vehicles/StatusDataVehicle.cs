@@ -111,7 +111,7 @@ namespace TransferManagerCore.Data
             if (vehicleId != 0)
             {
                 string sValue = CitiesUtils.GetVehicleTransferValue(GetVehicleId(), out int current, out int max);
-                tooltip = $"Vehicle Load: {DisplayBufferLong(current)} / {DisplayBufferLong(max)}";
+                tooltip = $"{Localization.Get("tip_VehicleLoad")}: {DisplayBufferLong(current)} / {DisplayBufferLong(max)}";
                 return sValue;
             }
 

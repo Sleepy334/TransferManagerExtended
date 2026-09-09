@@ -5,6 +5,7 @@ using UnityEngine;
 using static TransferManager;
 using static TransferManagerCore.BuildingTypeHelper;
 
+using SleepyCommon;
 namespace TransferManagerCore.Data
 {
     public class StatusDataCash : StatusDataBuilding

@@ -133,7 +133,7 @@ namespace TransferManagerCore.Data
             if (m_value is null)
             {
                 m_value = CitiesUtils.GetVehicleTransferValue(GetVehicleId(), out int current, out int max);
-                m_valueTooltip = $"{(CustomTransferReason)m_vehicle.m_transferType} | {StatusData.DisplayBufferLong(current)} / {StatusData.DisplayBufferLong(max)}";
+                m_valueTooltip = $"{CustomTransferReason.GetLocalizedReason(GetMaterial())} | {StatusData.DisplayBufferLong(current)} / {StatusData.DisplayBufferLong(max)}";
             }
             return m_value;
         }

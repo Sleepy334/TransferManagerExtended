@@ -99,7 +99,7 @@
 "listBuildingPanelOffersColumn6","Description"
 "listBuildingPanelMatchesColumn1","Time"
 "listBuildingPanelMatchesColumn2","Material"
-"listBuildingPanelMatchesColumn3","Active"
+"listBuildingPanelMatchesColumn3","Dispatch"
 "listBuildingPanelMatchesColumn4","Amount"
 "listBuildingPanelMatchesColumn5","Δ"
 "listBuildingPanelMatchesColumn6","Description"
@@ -834,3 +834,19 @@
 
 "tip_AllowedBuildings","Allowed Buildings:"
 "tip_PathDistanceTool","Path Distance Tool: "
+"tip_Material","Material"
+"tip_Object","Object"
+"tip_Priority","Priority"
+"tip_Amount","Amount"
+"tip_Active","Dispatch"
+"tip_Time","Time"
+"tip_Park","Park"
+"tip_Distance","Distance"
+"tip_In","In"
+"tip_Out","Out"
+"tip_ActiveValue","Active"
+"tip_PassiveValue","Passive"
+"inout_In","Import"
+"inout_Out","Export"
+"disp_Active","Active"
+"disp_Passive","Passive"

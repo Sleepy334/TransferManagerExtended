@@ -89,7 +89,7 @@ namespace TransferManagerCore
                 vehicle = Vehicles[nextVehicleId];
 
                 // Add vehicle to tooltip
-                materials.Add(((CustomTransferReason)vehicle.m_transferType).ToString());
+                materials.Add(CustomTransferReason.GetLocalizedReason(GetTransferType(vehicle)));
                 vehicles.Add(InstanceHelper.DescribeInstance(new InstanceID { Vehicle = nextVehicleId }, true, true));
 
                 // Add on target if available and different to parent
